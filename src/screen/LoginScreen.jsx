@@ -1,11 +1,12 @@
 import { StyleSheet, Text, View, Image, Dimensions, TextInput, TouchableOpacity, Alert } from 'react-native';
 import React, { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
-
 const isLargeScreen = width > 600;
 
 const LoginScreen = () => {
+  const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -14,12 +15,10 @@ const LoginScreen = () => {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
-    // Add your sign-in logic here
     console.log('Sign In button pressed');
   };
 
   const validateEmail = (email) => {
-    // Simple regex for email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
@@ -27,6 +26,10 @@ const LoginScreen = () => {
   const handleForgotPassword = () => {
     // Add your forgot password logic here
     console.log('Forgot Password pressed');
+  };
+
+  const handleCreateAccount = () => {
+    navigation.navigate('SignUpScreen'); 
   };
 
   return (
@@ -62,6 +65,12 @@ const LoginScreen = () => {
       <TouchableOpacity style={styles.signInButton} onPress={handleSignIn}> 
         <Text style={styles.signInButtonText}>SIGN IN</Text>
       </TouchableOpacity>
+      <View style={styles.createAccountContainer}>
+        <Text style={styles.createAccountText}>Don't have an account? </Text>
+        <TouchableOpacity onPress={handleCreateAccount}>
+          <Text style={styles.createLinkText}>Create</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -131,5 +140,17 @@ const styles = StyleSheet.create({
     color: "#213D61",
     fontSize: isLargeScreen ? 30 : 25,
     fontWeight: "bold",
+  },
+  createAccountContainer: {
+    flexDirection: 'row',
+    marginTop: '10%',
+  },
+  createAccountText: {
+    color: "#FFFFFF",
+  },
+  createLinkText: {
+    color: "#F8EC3B",  
+    textDecorationLine: 'underline', 
+    fontSize: isLargeScreen ? 20 : 15,
   },
 });
