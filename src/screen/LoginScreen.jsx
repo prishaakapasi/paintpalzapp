@@ -10,12 +10,13 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSignIn = () => {
+const handleSignIn = () => {
     if (!validateEmail(email)) {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
     console.log('Sign In button pressed');
+    navigation.navigate('Home');
   };
 
   const validateEmail = (email) => {
