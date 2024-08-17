@@ -1,11 +1,21 @@
-import { StyleSheet, View, Image, Dimensions } from 'react-native';
+import { StyleSheet, View, Image, Dimensions, TouchableOpacity } from 'react-native';
 import React from 'react';
 
 const { width } = Dimensions.get('window');
 const isLargeScreen = width > 600; // Check if the screen is large (e.g., iPads)
 const avatarSize = isLargeScreen ? { width: 800, height: 400 } : { width: 300, height: 150 }; // Adjust avatar size
 const buttonSize = isLargeScreen ? width * 0.45 : 150; // Adjust button size for larger screens
+const handleGalleryPress = () => {
+  console.log("Gallery button pressed");
+};
 
+const handlePaintByNumbersPress = () => {
+  console.log("Paint by Numbers button pressed");
+};
+
+const handleDrawingPress = () => {
+  console.log("Drawing button pressed");
+};
 const HomeScreen = () => {
   return (
     <View style={styles.container}>
@@ -13,17 +23,19 @@ const HomeScreen = () => {
         <Image source={require("../screen/assets/avatar.png")} style={styles.avatar} />
       </View>
       <View style={styles.buttonsContainer}>
-        <View style={styles.button}>
+        <TouchableOpacity style={[styles.button, styles.galleryButton]} onPress={handleGalleryPress}>
           <Image source={require("../screen/assets/gallery.png")} style={styles.gallery} />
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.button, styles.paintByNumbersButton]} onPress={handlePaintByNumbersPress}>
+            <Image source={require("../screen/assets/paintbynumbers.png")} style={styles.paintbynumbers} />
+          </TouchableOpacity>
         </View>
-        <View style={styles.button}>
-          <Image source={require("../screen/assets/paintbynumbers.png")} style={styles.paintbynumbers} />
+        <View style={styles.drawingContainer}>
+          <TouchableOpacity style={styles.drawingbutton} onPress={handleDrawingPress}>
+            <Image source={require("../screen/assets/drawing.png")} style={styles.drawing} />
+          </TouchableOpacity>
+          </View>
         </View>
-      </View>
-      <View style={styles.drawingbutton}>
-        <Image source={require("../screen/assets/drawing.png")} style={styles.drawing} />
-      </View>
-    </View>
   );
 };
 
@@ -34,47 +46,57 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     flex: 1,
     justifyContent: 'flex-start',
-    alignItems: 'center',
-    padding: 20, // Add padding for better spacing
+    alignItems: 'center', 
   },
   avatarscreen: {
-    marginTop: '10%',
+    marginTop: '15%',
     marginVertical: isLargeScreen ? 40 : 20,
     alignItems: 'center',
   },
   avatar: {
-    width: avatarSize.width, // Dynamic width based on screen size
-    height: avatarSize.height, // Dynamic height based on screen size
+    width: avatarSize.width, 
+    height: avatarSize.height,
     resizeMode: 'contain',
   },
   buttonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
-    marginTop: isLargeScreen ? 20 : 10, // Margin from avatar to first row
-    marginBottom: 0, // No space between button rows
+    marginBottom: 0, 
+    paddingHorizontal: isLargeScreen ? 30 : 15,
+    
   },
   button: {
-    width: buttonSize, // Dynamic size based on screen width
-    height: buttonSize, // Maintain aspect ratio
-    marginHorizontal: isLargeScreen ? 10 : 5, // Space between buttons in the first row
+    width: buttonSize, 
+    height: buttonSize,
+    marginHorizontal: isLargeScreen ? 8 : 2, 
   },
   gallery: {
     width: '100%',
     height: '100%',
+    marginTop: isLargeScreen ? 20 : 10,
     resizeMode: 'contain',
   },
   paintbynumbers: {
     width: '100%',
     height: '100%',
+    marginTop: isLargeScreen ? 20 : 10, 
     resizeMode: 'contain',
   },
   drawingbutton: {
-    marginTop: 0, // No space between rows
+    alignItems: 'center',
   },
   drawing: {
-    width: buttonSize, // Consistent size with buttons
-    height: buttonSize, // Consistent size with buttons
+    width: buttonSize, 
+    height: buttonSize, 
     resizeMode: 'contain',
+    paddingBottom: 5
+    
   },
+  drawingContainer: {
+    flex: 1, 
+    justifyContent: 'flex-end', 
+    bottomwidth: '100%',
+    paddingBottom: 20, 
+  }
 });
