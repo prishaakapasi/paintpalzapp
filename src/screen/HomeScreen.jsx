@@ -1,10 +1,10 @@
 import { StyleSheet, View, Image, Dimensions, TouchableOpacity } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
+import Header from './Header'; // Import the Header component
 
 const { width } = Dimensions.get('window');
 const isLargeScreen = width > 600; // Check if the screen is large (e.g., iPads)
-const avatarSize = isLargeScreen ? { width: 800, height: 400 } : { width: 300, height: 150 }; // Adjust avatar size
-const buttonSize = isLargeScreen ? width * 0.45 : 150; // Adjust button size for larger screens
+
 const handleGalleryPress = () => {
   console.log("Gallery button pressed");
 };
@@ -16,87 +16,158 @@ const handlePaintByNumbersPress = () => {
 const handleDrawingPress = () => {
   console.log("Drawing button pressed");
 };
+
+const handleSettingsPress = () => {
+  console.log("Settings button pressed");
+};
+
 const HomeScreen = () => {
+  const [headerText, setHeaderText] = useState('0'); // State for the header text
+
+  const updateHeaderText = () => {
+    setHeaderText('Updated Text');
+  };
+
   return (
     <View style={styles.container}>
+      <Header text={headerText} onSettingsPress={handleSettingsPress} />
       <View style={styles.avatarscreen}>
         <Image source={require("../screen/assets/avatar.png")} style={styles.avatar} />
       </View>
       <View style={styles.buttonsContainer}>
         <TouchableOpacity style={[styles.button, styles.galleryButton]} onPress={handleGalleryPress}>
           <Image source={require("../screen/assets/gallery.png")} style={styles.gallery} />
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, styles.paintByNumbersButton]} onPress={handlePaintByNumbersPress}>
-            <Image source={require("../screen/assets/paintbynumbers.png")} style={styles.paintbynumbers} />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.drawingContainer}>
-          <TouchableOpacity style={styles.drawingbutton} onPress={handleDrawingPress}>
-            <Image source={require("../screen/assets/drawing.png")} style={styles.drawing} />
-          </TouchableOpacity>
-          </View>
-        </View>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.button, styles.paintByNumbersButton]} onPress={handlePaintByNumbersPress}>
+          <Image source={require("../screen/assets/paintbynumbers.png")} style={styles.paintbynumbers} />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.drawingContainer}>
+        <TouchableOpacity style={styles.drawingbutton} onPress={handleDrawingPress}>
+          <Image source={require("../screen/assets/drawing.png")} style={styles.drawing} />
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
-export default HomeScreen;
-
-const styles = StyleSheet.create({
+const stylesPhone = StyleSheet.create({
   container: {
     backgroundColor: "#FFFFFF",
     flex: 1,
     justifyContent: 'flex-start',
-    alignItems: 'center', 
+    alignItems: 'center',
   },
   avatarscreen: {
-    marginTop: '15%',
-    marginVertical: isLargeScreen ? 40 : 20,
+    marginTop: '5%',
     alignItems: 'center',
   },
   avatar: {
-    width: avatarSize.width, 
-    height: avatarSize.height,
+    width: 400,
+    height: 400,
+    resizeMode: 'contain',
+  },
+  buttonsContainer: {
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    width: '100%',
+    alignItems: 'center',
+    borderRadius: 20,
+    marginTop: -35,
+  },
+  button: {
+    width: 400,
+    height: 150,
+    marginVertical: 10,
+    borderRadius: 30,
+    overflow: 'hidden',
+  },
+  gallery: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  paintbynumbers: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  drawingContainer: {
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  drawingbutton: {
+    width: 400,
+    height: 150,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  drawing: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+});
+
+const stylesLargeScreen = StyleSheet.create({
+  container: {
+    backgroundColor: "#FFFFFF",
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  avatarscreen: {
+    marginTop: '15%',
+    marginVertical: 40,
+    alignItems: 'center',
+  },
+  avatar: {
+    width: 800,
+    height: 400,
     resizeMode: 'contain',
   },
   buttonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
-    marginBottom: 0, 
-    paddingHorizontal: isLargeScreen ? 30 : 15,
-    
+    marginBottom: 30,
+    paddingHorizontal: 30,
   },
   button: {
-    width: buttonSize, 
-    height: buttonSize,
-    marginHorizontal: isLargeScreen ? 8 : 2, 
+    width: width * 0.45,
+    height: width * 0.45,
+    marginHorizontal: 8,
   },
   gallery: {
     width: '100%',
     height: '100%',
-    marginTop: isLargeScreen ? 20 : 10,
+    marginTop: 20,
     resizeMode: 'contain',
   },
   paintbynumbers: {
     width: '100%',
     height: '100%',
-    marginTop: isLargeScreen ? 20 : 10, 
+    marginTop: 20,
     resizeMode: 'contain',
   },
   drawingbutton: {
     alignItems: 'center',
+    marginTop: 30,
   },
   drawing: {
-    width: buttonSize, 
-    height: buttonSize, 
+    width: width * 0.45,
+    height: width * 0.45,
     resizeMode: 'contain',
-    paddingBottom: 5
-    
+    paddingBottom: 5,
   },
   drawingContainer: {
-    flex: 1, 
-    justifyContent: 'flex-end', 
-    bottomwidth: '100%',
-    paddingBottom: 20, 
-  }
+    flex: 1,
+    justifyContent: 'flex-end',
+    marginTop: '5%',
+    paddingBottom: '.5%',
+  },
 });
+
+const styles = isLargeScreen ? stylesLargeScreen : stylesPhone;
+
+export default HomeScreen;
