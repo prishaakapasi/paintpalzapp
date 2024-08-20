@@ -1,32 +1,32 @@
 import { StyleSheet, View, Image, Dimensions, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
 import Header from './Header'; // Import the Header component
 
 const { width } = Dimensions.get('window');
 const isLargeScreen = width > 600; // Check if the screen is large (e.g., iPads)
 
-const handleGalleryPress = () => {
-  console.log("Gallery button pressed");
-};
-
-const handlePaintByNumbersPress = () => {
-  console.log("Paint by Numbers button pressed");
-};
-
-const handleDrawingPress = () => {
-  console.log("Drawing button pressed");
-};
-
-const handleSettingsPress = () => {
-  console.log("Settings button pressed");
-};
-
 const HomeScreen = () => {
-  const [headerText, setHeaderText] = useState('0'); // State for the header text
+  const navigation = useNavigation(); // Access the navigation object
 
-  const updateHeaderText = () => {
-    setHeaderText('Updated Text');
+  const handleGalleryPress = () => {
+    console.log("Gallery button pressed");
   };
+
+  const handlePaintByNumbersPress = () => {
+    console.log("Paint by Numbers button pressed");
+  };
+
+  const handleDrawingPress = () => {
+    console.log("Drawing button pressed");
+    navigation.navigate('Drawing'); // Navigate to the DrawingScreen
+  };
+
+  const handleSettingsPress = () => {
+    console.log("Settings button pressed");
+  };
+
+  const [headerText, setHeaderText] = useState('0'); // State for the header text
 
   return (
     <View style={styles.container}>
