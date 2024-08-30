@@ -1,36 +1,47 @@
 import React, { useState, useRef } from 'react';
-import { View, StyleSheet, Dimensions, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, Dimensions, TouchableOpacity, Text, Modal, Button } from 'react-native'; 
 import { Svg, Path, Circle } from 'react-native-svg';
+import ColorPicker, { Panel1, Swatches, Preview, OpacitySlider, HueSlider } from 'reanimated-color-picker';
+import Slider from '@react-native-community/slider';
 
 const { height, width } = Dimensions.get('window');
 
 const DrawingScreen = () => {
   const [paths, setPaths] = useState([]);
-  const [dots, setDots] = useState([]); // For storing dots
+  const [dots, setDots] = useState([]);
   const [currentPath, setCurrentPath] = useState([]);
-  const pathRef = useRef([]); // Re-added pathRef
+  const [selectedColor, setSelectedColor] = useState('red');
+  const [strokeSize, setStrokeSize] = useState(3);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const pathRef = useRef([]);
   const startX = useRef(null);
   const startY = useRef(null);
+
+  const isWithinBounds = (x, y) => {
+    const padding = 10;
+    const xMin = padding;
+    const xMax = width - padding;
+    const yMin = padding;
+    const yMax = height * 0.7 - padding;
+
+    return x >= xMin && x <= xMax && y >= yMin && y <= yMax;
+  };
 
   const onTouchStart = (event) => {
     const locationX = event.nativeEvent.locationX;
     const locationY = event.nativeEvent.locationY;
 
-    // Ensure the start point is within the svgContainer bounds
-    if (locationX >= 0 && locationX <= width * 0.9 && locationY >= 0 && locationY <= height * 0.7) {
+    if (isWithinBounds(locationX, locationY)) {
       startX.current = locationX;
       startY.current = locationY;
     }
   };
 
   const onTouchEnd = () => {
-    if (currentPath.length === 0) {
-      // If the user taps without dragging, create a dot within bounds
-      if (startX.current !== null && startY.current !== null) {
-        setDots([...dots, { x: startX.current, y: startY.current }]);
-      }
-    } else {
-      pathRef.current.push(currentPath);
+    if (currentPath.length === 0 && startX.current !== null && startY.current !== null) {
+      setDots([...dots, { x: startX.current, y: startY.current, color: selectedColor, size: strokeSize }]);
+    } else if (currentPath.length > 0) {
+      pathRef.current.push({ path: currentPath, color: selectedColor, size: strokeSize });
       setPaths([...pathRef.current]);
       setCurrentPath([]);
     }
@@ -40,8 +51,7 @@ const DrawingScreen = () => {
     const locationX = event.nativeEvent.locationX;
     const locationY = event.nativeEvent.locationY;
 
-    // Ensure the new point is within the svgContainer bounds
-    if (locationX >= 0 && locationX <= width * 0.9 && locationY >= 0 && locationY <= height * 0.7) {
+    if (isWithinBounds(locationX, locationY)) {
       const newPath = [...currentPath];
       newPath.push({ x: locationX.toFixed(0), y: locationY.toFixed(0) });
       setCurrentPath(newPath);
@@ -51,12 +61,16 @@ const DrawingScreen = () => {
   const handleClearButtonClick = () => {
     pathRef.current = [];
     setPaths([]);
-    setDots([]); // Clear dots as well
+    setDots([]);
     setCurrentPath([]);
   };
 
   const renderPath = (path) => {
-    return path.map((point, index) => `${index === 0 ? 'M' : 'L'}${point.x},${point.y}`).join(' ');
+    return path.path.map((point, index) => `${index === 0 ? 'M' : 'L'}${point.x},${point.y}`).join(' ');
+  };
+
+  const onSelectColor = ({ hex }) => {
+    setSelectedColor(hex);
   };
 
   return (
@@ -67,14 +81,14 @@ const DrawingScreen = () => {
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        <Svg height={height * 0.7} width={width * 0.9}>
-          {paths.map((path, index) => (
+        <Svg height={height * 0.7} width={width}>
+          {paths.map((item, index) => (
             <Path
               key={`path-${index}`}
-              d={renderPath(path)}
-              stroke={'red'}
+              d={renderPath(item)}
+              stroke={item.color}
               fill={'transparent'}
-              strokeWidth={3}
+              strokeWidth={item.size}
               strokeLinejoin={'round'}
               strokeLinecap={'round'}
             />
@@ -84,25 +98,56 @@ const DrawingScreen = () => {
               key={`dot-${index}`}
               cx={dot.x}
               cy={dot.y}
-              r={3} // Radius of the dot
-              fill={'red'}
+              r={dot.size / 2} // Adjust dot radius based on stroke size
+              fill={dot.color}
             />
           ))}
           <Path
-            d={renderPath(currentPath)}
-            stroke={'red'}
+            d={renderPath({ path: currentPath })}
+            stroke={selectedColor}
             fill={'transparent'}
-            strokeWidth={3}
+            strokeWidth={strokeSize}
             strokeLinejoin={'round'}
             strokeLinecap={'round'}
           />
         </Svg>
       </View>
-      <View>
+
+      <View style={styles.controlsContainer}>
         <TouchableOpacity style={styles.clearButton} onPress={handleClearButtonClick}>
           <Text style={styles.clearButtonText}>Clear</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity style={styles.colorButton} onPress={() => setShowColorPicker(true)}>
+          <Text style={styles.colorButtonText}>Pick Color</Text>
+        </TouchableOpacity>
       </View>
+
+      <View style={styles.sliderContainer}>
+        <Text style={styles.sliderLabel}>Stroke Size: {strokeSize}</Text>
+        <Slider
+          style={styles.slider}
+          minimumValue={1}
+          maximumValue={20}
+          value={strokeSize}
+          onValueChange={value => setStrokeSize(value)}
+          minimumTrackTintColor="#FFFFFF"
+          maximumTrackTintColor="#000000"
+        />
+      </View>
+
+      <Modal visible={showColorPicker} animationType='slide'>
+        <View style={styles.colorPickerContainer}>
+          <ColorPicker style={{ width: '70%' }} value={selectedColor} onComplete={onSelectColor}>
+            <Preview />
+            <Panel1 />
+            <HueSlider />
+            <OpacitySlider />
+            <Swatches />
+          </ColorPicker>
+          <Button title='Ok' onPress={() => setShowColorPicker(false)} />
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -119,13 +164,17 @@ const styles = StyleSheet.create({
     width: '90%',
     justifyContent: 'center',
     alignItems: 'center',
-    borderColor: 'pink',
+    borderColor: 'black',
     backgroundColor: 'white',
     padding: 10,
     borderRadius: 5,
   },
-  clearButton: {
+  controlsContainer: {
+    flexDirection: 'row',
     marginTop: 10,
+  },
+  clearButton: {
+    marginRight: 10,
     backgroundColor: 'white',
     paddingVertical: 10,
     paddingHorizontal: 20,
@@ -135,6 +184,36 @@ const styles = StyleSheet.create({
     color: "#213D61",
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  colorButton: {
+    backgroundColor: 'white',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  colorButtonText: {
+    color: "#213D61",
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  sliderContainer: {
+    marginTop: 20,
+    width: '90%',
+    alignItems: 'center',
+  },
+  sliderLabel: {
+    color: 'white',
+    marginBottom: 10,
+    fontSize: 16,
+  },
+  slider: {
+    width: '100%',
+  },
+  colorPickerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#00000099', // Modal background with transparency
   },
 });
 
