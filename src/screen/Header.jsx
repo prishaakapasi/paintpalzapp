@@ -4,7 +4,9 @@ import { View, Image, Text, StyleSheet, Dimensions, TouchableOpacity } from 'rea
 const { width } = Dimensions.get('window');
 const isLargeScreen = width > 600;
 
-const Header = ({ text, onSettingsPress }) => {
+const Header = ({ text, onSettingsPress, whiteHeader }) => {
+  const styles = whiteHeader ? stylesWhite : (isLargeScreen ? stylesLargeScreen : stylesPhone);
+
   return (
     <View style={styles.headerContainer}>
       <TouchableOpacity
@@ -89,6 +91,41 @@ const stylesLargeScreen = StyleSheet.create({
   },
 });
 
-const styles = isLargeScreen ? stylesLargeScreen : stylesPhone;
+const stylesWhite = StyleSheet.create({
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'absolute',
+    top: 50,
+    left: 10,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 60,
+  },
+  headerText: {
+    fontSize: 20,
+    color: '#213D61',
+    marginRight: 5,
+  },
+  coins: {
+    width: 25,
+    height: 25,
+    resizeMode: 'contain',
+  },
+  setting: {
+    width: 30,
+    height: 30,
+    resizeMode: 'contain',
+  },
+  touchable: {
+    padding: 10, // Added padding to ensure touch area
+    backgroundColor: 'rgba(0,0,0,0)', // Transparent background for debugging
+  },
+});
 
 export default Header;
