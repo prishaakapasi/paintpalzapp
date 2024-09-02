@@ -1,13 +1,15 @@
 import React, { useState, useRef } from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity, Text, Modal, Button, Image } from 'react-native';
-import { Svg, Path, Circle } from 'react-native-svg';
+import { Svg, Path, Defs, ClipPath, Rect, G, Circle} from 'react-native-svg';
 import ColorPicker, { Panel1, Swatches, Preview, OpacitySlider, HueSlider } from 'reanimated-color-picker';
 import Slider from '@react-native-community/slider';
+import { useNavigation } from '@react-navigation/native';
 import Header from './Header';
 
 const { height, width } = Dimensions.get('window');
-
 const DrawingScreen = () => {
+  const navigation = useNavigation();
+
   const [paths, setPaths] = useState([]);
   const [dots, setDots] = useState([]);
   const [currentPath, setCurrentPath] = useState([]);
@@ -18,9 +20,330 @@ const DrawingScreen = () => {
   const [isErasing, setIsErasing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
+  const [showPromptGenerator, setShowPromptGenerator] = useState(false);
+  const [currentPrompt, setCurrentPrompt] = useState('');
+
+  const addPath = (path) => {
+    setPaths([...paths, path]);
+  };
+
   const pathRef = useRef([]);
   const startX = useRef(null);
   const startY = useRef(null);
+
+  const handleHomePress = () => {
+    console.log("Home button pressed");
+    navigation.navigate('Home'); 
+  };
+
+  const topics = [
+    "Draw your happy place.",
+    "Create a scene that represents peace.",
+    "Illustrate your favorite memory.",
+    "Draw something that makes you smile.",
+    "Create an image of your dream vacation.",
+    "Draw your ideal home.",
+    "Illustrate the feeling of love.",
+    "Draw a place where you feel safe.",
+    "Create a drawing inspired by your favorite song.",
+    "Illustrate a moment of kindness.",
+    "Draw the sky from your favorite season.",
+    "Create a mandala representing balance.",
+    "Draw a scene that makes you feel calm.",
+    "Illustrate something that represents hope.",
+    "Draw your favorite childhood toy.",
+    "Create an image of a place you’d like to visit.",
+    "Draw something that represents happiness.",
+    "Illustrate a comforting moment.",
+    "Draw the ocean in a way that brings you peace.",
+    "Create a drawing that represents freedom.",
+    "Draw a flower that symbolizes growth.",
+    "Illustrate a serene landscape.",
+    "Draw something that represents inner strength.",
+    "Create an image that symbolizes self-love.",
+    "Draw a cozy scene with your favorite warm drink.",
+    "Illustrate a place that feels like home.",
+    "Draw something that makes you feel empowered.",
+    "Create a drawing that represents gratitude.",
+    "Draw an animal that brings you joy.",
+    "Illustrate a moment of quiet reflection.",
+    "Draw a place where you can be yourself.",
+    "Create an image of your favorite outdoor activity.",
+    "Draw something that symbolizes resilience.",
+    "Illustrate a moment of pure joy.",
+    "Draw a tree that represents your personal growth.",
+    "Create a drawing that represents calmness.",
+    "Draw your favorite part of nature.",
+    "Illustrate a moment when you felt at peace.",
+    "Draw something that represents connection.",
+    "Create an image of a place that makes you feel free.",
+    "Draw a butterfly that symbolizes transformation.",
+    "Illustrate a moment of self-care.",
+    "Draw a sunset that makes you feel relaxed.",
+    "Create a drawing that represents mindfulness.",
+    "Draw a garden that brings you joy.",
+    "Illustrate something that represents patience.",
+    "Draw a peaceful night sky.",
+    "Create an image of something that inspires you.",
+    "Draw something that represents clarity.",
+    "Illustrate a moment of healing.",
+    "Draw your favorite spot in nature.",
+    "Create a drawing that symbolizes trust.",
+    "Draw something that makes you feel grounded.",
+    "Illustrate a moment of connection with others.",
+    "Draw a symbol of your personal journey.",
+    "Create an image of something you’re grateful for.",
+    "Draw your favorite thing about yourself.",
+    "Illustrate a place where you feel most alive.",
+    "Draw something that represents forgiveness.",
+    "Create a drawing that symbolizes new beginnings.",
+    "Draw a scene that represents tranquility.",
+    "Illustrate a moment of acceptance.",
+    "Draw something that represents self-discovery.",
+    "Create an image of your favorite morning ritual.",
+    "Draw a tree that symbolizes strength.",
+    "Illustrate a moment when you felt proud.",
+    "Draw something that represents peace of mind.",
+    "Create a drawing that symbolizes harmony.",
+    "Draw your favorite way to relax.",
+    "Illustrate a moment of courage.",
+    "Draw something that represents trust in yourself.",
+    "Create an image of your ideal future.",
+    "Draw a place where you feel connected to the earth.",
+    "Illustrate a moment of pure contentment.",
+    "Draw something that represents letting go.",
+    "Create a drawing that symbolizes hope for the future.",
+    "Draw a bird that represents freedom.",
+    "Illustrate a moment when you felt loved.",
+    "Draw something that represents inner peace.",
+    "Create an image of your favorite season.",
+    "Draw a symbol of your dreams.",
+    "Illustrate a moment of happiness with others.",
+    "Draw something that represents your core values.",
+    "Create a drawing that symbolizes balance in life.",
+    "Draw a place where you feel most creative.",
+    "Illustrate a moment of kindness from a stranger.",
+    "Draw something that represents your spiritual journey.",
+    "Create an image that symbolizes renewal.",
+    "Draw a symbol of your unique strengths.",
+    "Illustrate a moment when you felt truly alive.",
+    "Draw something that represents your connection to nature.",
+    "Create a drawing that symbolizes inner growth.",
+    "Draw a flower that represents your personality.",
+    "Illustrate a moment of peace with yourself.",
+    "Draw something that represents your life’s purpose.",
+    "Create an image of your ideal day.",
+    "Draw a symbol of hope.",
+    "Illustrate a moment when you felt connected to the universe.",
+    "Draw something that represents your self-worth.",
+    "Create a drawing that symbolizes love in all forms.",
+    "Draw a place where you feel a deep sense of belonging.",
+    "Illustrate a moment of reflection and introspection.",
+    "Draw something that represents your inner child.",
+    "Create an image that symbolizes joy in simplicity.",
+    "Draw a landscape that represents your inner world.",
+    "Illustrate a moment of clarity in your life.",
+    "Draw something that represents the balance between mind and body.",
+    "Create a drawing that symbolizes unity with others.",
+    "Draw a symbol of the wisdom you’ve gained.",
+    "Illustrate a moment of forgiveness, for yourself or others.",
+    "Draw something that represents a personal breakthrough.",
+    "Create an image that symbolizes the beauty in imperfection.",
+    "Draw a place where you feel completely at peace.",
+    "Illustrate a moment of deep understanding.",
+    "Draw something that represents your connection to the present moment.",
+    "Create a drawing that symbolizes the importance of self-care.",
+    "Draw a symbol of your resilience.",
+    "Illustrate a moment when you felt at one with the world.",
+    "Draw something that represents your love for yourself.",
+    "Create an image that symbolizes the power of community.",
+    "Draw a place where you can fully express yourself.",
+    "Illustrate a moment of simple pleasures.",
+    "Draw something that represents your personal growth journey.",
+    "Create a drawing that symbolizes your connection to your roots.",
+    "Draw a symbol of the lessons you’ve learned.",
+    "Illustrate a moment of inner strength.",
+    "Draw something that represents your dreams for the future.",
+    "Create an image that symbolizes your inner wisdom.",
+    "Draw a place that brings you peace and joy.",
+    "Illustrate a moment of love and connection.",
+    "Draw something that represents your personal power.",
+    "Create a drawing that symbolizes your journey of self-discovery.",
+    "Draw a symbol of your hopes and aspirations.",
+    "Illustrate a moment of deep relaxation.",
+    "Draw something that represents your unique qualities.",
+    "Create an image that symbolizes the importance of mindfulness.",
+    "Draw a place where you can recharge your spirit.",
+    "Illustrate a moment of personal growth.",
+    "Draw something that represents your connection to others.",
+    "Create a drawing that symbolizes the power of positive thinking.",
+    "Draw a symbol of your journey toward inner peace.",
+    "Illustrate a moment when you felt truly free.",
+    "Draw something that represents your connection to the earth.",
+    "Create an image that symbolizes the beauty of life.",
+    "Draw a place where you feel a deep sense of tranquility.",
+    "Illustrate a moment of quiet contemplation.",
+    "Draw something that represents your personal values.",
+    "Create a drawing that symbolizes the power of love.",
+    "Draw a symbol of your connection to your true self.",
+    "Illustrate a moment when you felt a deep sense of purpose.",
+    "Draw something that represents your inner harmony.",
+    "Create an image that symbolizes the journey of self-love.",
+    "Draw a place where you feel most alive and vibrant.",
+    "Illustrate a moment of connection with nature.",
+    "Draw something that represents your inner peace and contentment.",
+    "Create a drawing that symbolizes your personal journey of healing.",
+    "Draw a symbol of the strength you’ve gained over time.",
+    "Illustrate a moment of pure joy and happiness.",
+    "Draw something that represents your love for the world around you.",
+    "Create an image that symbolizes your journey toward wholeness.",
+    "Draw a place where you feel a deep sense of belonging.",
+    "Illustrate a moment of clarity and understanding.",
+    "Draw something that represents your connection to the universe.",
+    "Create a drawing that symbolizes the power of forgiveness.",
+    "Draw a symbol of your journey toward self-acceptance.",
+    "Illustrate a moment when you felt deeply connected to yourself.",
+    "Draw something that represents the balance in your life.",
+    "Create an image that symbolizes your love for life.",
+    "Draw a place where you can fully relax and be yourself.",
+    "Illustrate a moment of deep introspection.",
+    "Draw something that represents your journey toward inner peace.",
+    "Create a drawing that symbolizes the importance of being present.",
+    "Draw a symbol of your journey toward personal fulfillment.",
+    "Illustrate a moment when you felt a deep sense of joy.",
+    "Draw something that represents your connection to your inner self.",
+    "Create an image that symbolizes the power of positive energy.",
+    "Draw a place where you feel a deep sense of inner calm.",
+    "Illustrate a moment of pure contentment and peace.",
+    "Draw something that represents your journey toward self-discovery.",
+    "Create a drawing that symbolizes the importance of self-care and love.",
+    "Draw a symbol of your journey toward wholeness and healing.",
+    "Illustrate a moment when you felt truly at peace with yourself.",
+    "Draw something that represents the beauty in simplicity.",
+    "Create an image that symbolizes the power of self-love.",
+    "Draw a place where you can fully express your creativity.",
+    "Illustrate a moment of deep connection with others.",
+    "Draw something that represents your journey toward self-empowerment.",
+    "Create a drawing that symbolizes the importance of inner peace.",
+    "Draw a symbol of your journey toward self-realization.",
+    "Illustrate a moment when you felt truly alive and vibrant.",
+    "Draw something that represents your connection to your authentic self.",
+    "Create an image that symbolizes the power of mindfulness.",
+    "Draw a place where you feel a deep sense of connection with nature.",
+    "Illustrate a moment of personal growth and transformation.",
+    "Draw something that represents your journey toward self-fulfillment.",
+    "Create a drawing that symbolizes the importance of self-compassion.",
+    "Draw a symbol of your journey toward inner strength and resilience.",
+    "Illustrate a moment when you felt a deep sense of inner peace.",
+    "Draw something that represents the balance in your life.",
+    "Create an image that symbolizes your journey toward inner wisdom.",
+    "Draw a place where you can fully relax and recharge your spirit.",
+    "Illustrate a moment of deep self-reflection.",
+    "Draw something that represents your journey toward self-acceptance.",
+    "Create a drawing that symbolizes the power of positive thinking.",
+    "Draw a symbol of your journey toward inner harmony and balance.",
+    "Illustrate a moment when you felt a deep sense of connection with yourself.",
+    "Draw something that represents your connection to the world around you.",
+    "Create an image that symbolizes the importance of self-care.",
+    "Draw a place where you feel a deep sense of inner calm and peace.",
+    "Illustrate a moment of pure happiness and joy.",
+    "Draw something that represents your journey toward personal growth.",
+    "Create a drawing that symbolizes the power of self-love and acceptance.",
+    "Draw a symbol of your journey toward inner peace and contentment.",
+    "Illustrate a moment when you felt truly at one with yourself.",
+    "Draw something that represents the balance in your life.",
+    "Create an image that symbolizes your journey toward wholeness and healing.",
+    "Draw a place where you can fully express your true self.",
+    "Illustrate a moment of deep connection with nature.",
+    "Draw something that represents your journey toward self-empowerment.",
+    "Create a drawing that symbolizes the importance of self-compassion and love.",
+    "Draw a symbol of your journey toward inner strength and resilience.",
+    "Illustrate a moment when you felt truly connected to yourself.",
+    "Draw something that represents the power of mindfulness.",
+    "Create an image that symbolizes your journey toward self-discovery.",
+    "Draw a place where you feel a deep sense of peace and tranquility.",
+    "Illustrate a moment of deep reflection and understanding.",
+    "Draw something that represents your connection to your true self.",
+    "Create a drawing that symbolizes the power of positive energy.",
+    "Draw a symbol of your journey toward inner peace and happiness.",
+    "Illustrate a moment when you felt a deep sense of joy and contentment.",
+    "Draw something that represents your connection to the world around you.",
+    "Create an image that symbolizes the importance of self-care and love.",
+    "Draw a place where you feel a deep sense of connection with yourself.",
+    "Illustrate a moment of pure contentment and peace.",
+    "Draw something that represents your journey toward self-acceptance.",
+    "Create a drawing that symbolizes the power of positive thinking.",
+    "Draw a symbol of your journey toward inner harmony and balance.",
+    "Illustrate a moment when you felt truly at peace with yourself.",
+    "Draw something that represents the balance in your life.",
+    "Create an image that symbolizes your journey toward wholeness and healing.",
+    "Draw a place where you can fully express your creativity and spirit.",
+    "Illustrate a moment of deep connection with others.",
+    "Draw something that represents your journey toward self-empowerment.",
+    "Create a drawing that symbolizes the importance of self-love and acceptance.",
+    "Draw a symbol of your journey toward inner strength and resilience.",
+    "Illustrate a moment when you felt truly alive and vibrant.",
+    "Draw something that represents your connection to your inner self.",
+    "Create an image that symbolizes the power of mindfulness and presence.",
+    "Draw a place where you feel a deep sense of connection with nature.",
+    "Illustrate a moment of personal growth and transformation.",
+    "Draw something that represents your journey toward self-fulfillment.",
+    "Create a drawing that symbolizes the importance of self-compassion and love.",
+    "Draw a symbol of your journey toward inner peace and contentment.",
+    "Illustrate a moment when you felt a deep sense of inner calm and tranquility.",
+    "Draw something that represents the balance in your life.",
+    "Create an image that symbolizes your journey toward inner wisdom and understanding.",
+    "Draw a place where you can fully relax and be yourself.",
+    "Illustrate a moment of deep self-reflection.",
+    "Draw something that represents your journey toward self-acceptance.",
+    "Create a drawing that symbolizes the power of positive thinking.",
+    "Draw a symbol of your journey toward inner harmony and balance.",
+    "Illustrate a moment when you felt truly connected to yourself.",
+    "Draw something that represents the power of self-love.",
+    "Create an image that symbolizes your journey toward self-discovery and growth.",
+    "Draw a place where you feel a deep sense of peace and joy.",
+    "Illustrate a moment of deep reflection and introspection.",
+    "Draw something that represents your connection to the world around you.",
+    "Create a drawing that symbolizes the importance of self-care and compassion.",
+    "Draw a symbol of your journey toward inner strength and resilience.",
+    "Illustrate a moment when you felt truly at peace with yourself.",
+    "Draw something that represents the balance in your life.",
+    "Create an image that symbolizes your journey toward wholeness and healing.",
+    "Draw a place where you can fully express your creativity and spirit.",
+    "Illustrate a moment of deep connection with others.",
+    "Draw something that represents your journey toward self-empowerment.",
+    "Create a drawing that symbolizes the importance of self-love and acceptance.",
+    "Draw a symbol of your journey toward inner strength and resilience.",
+    "Illustrate a moment when you felt truly alive and vibrant.",
+    "Draw something that represents your connection to your inner self.",
+    "Create an image that symbolizes the power of mindfulness and presence.",
+    "Draw a place where you feel a deep sense of connection with nature.",
+    "Illustrate a moment of personal growth and transformation.",
+    "Draw something that represents your journey toward self-fulfillment.",
+    "Create a drawing that symbolizes the importance of self-compassion and love.",
+    "Draw a symbol of your journey toward inner peace and contentment.",
+    "Illustrate a moment when you felt a deep sense of inner calm and tranquility.",
+    "Draw something that represents the balance in your life.",
+    "Create an image that symbolizes your journey toward inner wisdom and understanding."
+  ];
+  
+  const pickRandomTopic = () => {
+    const randomIndex = Math.floor(Math.random() * topics.length);
+    setCurrentPrompt(topics[randomIndex]);
+  };
+
+  const renderPromptGenerator = () => {
+    if (!showPromptGenerator) return null;
+
+    return (
+      <View style={styles.promptGeneratorContainer}>
+        <Text style={styles.promptText}>{currentPrompt}</Text>
+        <TouchableOpacity style={styles.newPromptButton} onPress={pickRandomTopic}>
+          <Text style={styles.newPromptButtonText}>New Prompt</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   const isWithinBounds = (x, y) => {
     const padding = 10;
@@ -115,6 +438,11 @@ const DrawingScreen = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.homeButton}>
+        <TouchableOpacity style={styles.homeButton} onPress={handleHomePress}>
+        <Image source={require("../screen/assets/home.png")} style={styles.home} />
+        </TouchableOpacity>
+       </View>
       <Header text={headerText} onSettingsPress={handleSettingsPress} />
       <View style={styles.textContainer}>
         <Text style={styles.drawingtext}>DRAWING</Text>
@@ -158,7 +486,13 @@ const DrawingScreen = () => {
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        <Svg height={height * 0.7} width={width}>
+        <Svg height={height * 0.7} width={width * 0.9}>
+        <Defs>
+          {/* Define a clipping path */}
+          <ClipPath id="clip">
+            <Rect x="0" y="0" width={width} height={height} />
+          </ClipPath>
+        </Defs>
           {paths.map((item, index) => (
             <Path
               key={`path-${index}`}
@@ -168,6 +502,7 @@ const DrawingScreen = () => {
               strokeWidth={item.size}
               strokeLinejoin={'round'}
               strokeLinecap={'round'}
+              clipPath="url(#clip)"
             />
           ))}
           {dots.map((dot, index) => (
@@ -189,6 +524,7 @@ const DrawingScreen = () => {
           />
         </Svg>
       </View>
+      
 
       <View style={styles.controlsContainer}>
         <TouchableOpacity style={styles.clearButton} onPress={handleClearButtonClick}>
@@ -210,20 +546,20 @@ const DrawingScreen = () => {
       </Modal>
 
       <Modal visible={showStrokeSizePicker} animationType='slide'>
-        <View style={styles.strokeSizePickerContainer}>
-          <Text style={styles.sliderLabel}>Stroke Size: {strokeSize.toFixed(1)}</Text>
+        <View style={styles.strokeSizeContainer}>
+          <Text>Stroke Size</Text>
           <Slider
-            style={styles.slider}
+            style={{ width: 200, height: 40 }}
             minimumValue={1}
-            maximumValue={100}
+            maximumValue={50}
             value={strokeSize}
-            onValueChange={value => setStrokeSize(value)}
-            minimumTrackTintColor="#FFFFFF"
-            maximumTrackTintColor="#000000"
+            onValueChange={setStrokeSize}
           />
           <Button title='Ok' onPress={() => setShowStrokeSizePicker(false)} />
         </View>
       </Modal>
+
+      {renderPromptGenerator()}
     </View>
   );
 };
@@ -235,102 +571,125 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#213D61',
   },
-  svgContainer: {
-    width: width * 0.9,
-    height: height * 0.7,
-    backgroundColor: '#FFFFFF',
+  homeButton: {
+    position: 'absolute',
+    top: '3%', // Adjust as necessary
+    right: '5%', // Adjust as necessary
+    zIndex: 10,
+  },
+  home: {
+    width: 40,
+    height: 40,
+    resizeMode: 'contain',
+    flex: 'right',
   },
   textContainer: {
-    marginBottom: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   drawingtext: {
-    fontSize: 20,
+    fontSize: 32,
     fontWeight: 'bold',
+    marginTop: '3%',
     color: 'white',
+
   },
   buttonRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    paddingHorizontal: 20,
-    marginBottom: 20,
+    justifyContent: 'space-around',
+    marginVertical: 10,
   },
   palettebutton: {
-    margin: 10,
-  },
-  lineweightbutton: {
-    margin: 10,
-  },
-  editbutton: {
-    margin: 10,
-  },
-  downloadbutton: {
-    margin: 10,
-  },
-  eraserbutton: {
-    margin: 10,
+    padding: 10,
   },
   palette: {
     width: 30,
     height: 30,
   },
+  lineweightbutton: {
+    padding: 10,
+  },
   lineweight: {
     width: 30,
     height: 30,
+  },
+  editbutton: {
+    padding: 10,
   },
   edit: {
     width: 30,
     height: 30,
   },
+  downloadbutton: {
+    padding: 10,
+  },
   download: {
     width: 30,
     height: 30,
+  },
+  eraserbutton: {
+    padding: 10,
   },
   erase: {
     width: 30,
     height: 30,
   },
-  clearButton: {
-    backgroundColor: 'white',
+  buttonActive: {
+    backgroundColor: 'lightgray',
+  },
+  svgContainer: {
+    width: width * 0.9,
+    height: height * 0.7,
+    backgroundColor: '#FFFFFF',
+
+  },
+  controlsContainer: {
     padding: 10,
+    alignItems: 'center',
+  },
+  clearButton: {
+    padding: 10,
+    backgroundColor: 'red',
     borderRadius: 5,
   },
   clearButtonText: {
-    color: '#213D61',
+    color: 'white',
     fontWeight: 'bold',
-    alignContent: 'center',
-  },
-  controlsContainer: {
-    position: 'absolute',
-    bottom: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    paddingHorizontal: 20,
   },
   colorPickerContainer: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    justifyContent: 'center',
   },
-  strokeSizePickerContainer: {
+  strokeSizeContainer: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    justifyContent: 'center',
   },
-  slider: {
-    width: 200,
-    height: 40,
-    screenColor: 'blue',
+  promptGeneratorContainer: {
+    position: 'absolute',
+    top: 80,
+    left: 20,
+    right: 20,
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 10,
+    elevation: 5,
   },
-  sliderLabel: {
+  promptText: {
     fontSize: 16,
+    fontWeight: 'bold',
     marginBottom: 10,
   },
-  buttonActive: {
-    opacity: 0.7,
+  newPromptButton: {
+    alignSelf: 'center',
+    padding: 10,
+    backgroundColor: '#007AFF',
+    borderRadius: 5,
+  },
+  newPromptButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 
