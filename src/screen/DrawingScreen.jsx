@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, StyleSheet, Dimensions, TouchableOpacity, Text, Modal, Button, Image } from 'react-native';
+import { View, StyleSheet, Dimensions, TouchableOpacity, Text, Modal, Button, Image, Switch } from 'react-native';
 import { Svg, Path, Defs, ClipPath, Rect, G, Circle} from 'react-native-svg';
 import ColorPicker, { Panel1, Swatches, Preview, OpacitySlider, HueSlider } from 'reanimated-color-picker';
 import Slider from '@react-native-community/slider';
@@ -19,9 +19,9 @@ const DrawingScreen = () => {
   const [showStrokeSizePicker, setShowStrokeSizePicker] = useState(false);
   const [isErasing, setIsErasing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-
-  const [showPromptGenerator, setShowPromptGenerator] = useState(false);
   const [currentPrompt, setCurrentPrompt] = useState('');
+  const [isPromptGeneratorVisible, setIsPromptGeneratorVisible] = useState(false);
+
 
   const addPath = (path) => {
     setPaths([...paths, path]);
@@ -34,6 +34,20 @@ const DrawingScreen = () => {
   const handleHomePress = () => {
     console.log("Home button pressed");
     navigation.navigate('Home'); 
+  };
+  const handleTouchStart = (event) => {
+    const { locationX, locationY } = event.nativeEvent;
+    setCurrentPath([{ x: locationX, y: locationY }]);
+  };
+
+  const handleTouchMove = (event) => {
+    const { locationX, locationY } = event.nativeEvent;
+    setCurrentPath(prevPath => [...prevPath, { x: locationX, y: locationY }]);
+  };
+
+  const handleTouchEnd = () => {
+    setPaths(prevPaths => [...prevPaths, { color: selectedColor, strokeWidth: strokeSize, path: currentPath }]);
+    setCurrentPath([]);
   };
 
   const topics = [
@@ -333,17 +347,19 @@ const DrawingScreen = () => {
   };
 
   const renderPromptGenerator = () => {
-    if (!showPromptGenerator) return null;
+    if (!isPromptGeneratorVisible) return null;
 
     return (
-      <View style={styles.promptGeneratorContainer}>
-        <Text style={styles.promptText}>{currentPrompt}</Text>
-        <TouchableOpacity style={styles.newPromptButton} onPress={pickRandomTopic}>
-          <Text style={styles.newPromptButtonText}>New Prompt</Text>
-        </TouchableOpacity>
-      </View>
+
+      <Modal visible={showPromptGenerator} onRequestClose={() => setShowPromptGenerator(false)}>
+        <View style={styles.modalContainer}>
+          <Text style={styles.promptText}>{getRandomPrompt()}</Text>
+          <Button title="Close" onPress={() => setShowPromptGenerator(false)} />
+        </View>
+      </Modal>
     );
   };
+
 
   const isWithinBounds = (x, y) => {
     const padding = 10;
@@ -440,9 +456,9 @@ const DrawingScreen = () => {
     <View style={styles.container}>
       <View style={styles.homeButton}>
         <TouchableOpacity style={styles.homeButton} onPress={handleHomePress}>
-        <Image source={require("../screen/assets/home.png")} style={styles.home} />
+          <Image source={require("../screen/assets/home.png")} style={styles.home} />
         </TouchableOpacity>
-       </View>
+      </View>
       <Header text={headerText} onSettingsPress={handleSettingsPress} />
       <View style={styles.textContainer}>
         <Text style={styles.drawingtext}>DRAWING</Text>
@@ -479,20 +495,17 @@ const DrawingScreen = () => {
           <Image source={require("../screen/assets/ink_eraser.png")} style={styles.erase} />
         </TouchableOpacity>
       </View>
+  
+      <View style={styles.svgContainer}>
+        <Svg height={height * 0.7} width={width * 0.9}  onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}  onTouchEnd={handleTouchEnd} >
 
-      <View
-        style={styles.svgContainer}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-      >
-        <Svg height={height * 0.7} width={width * 0.9}>
-        <Defs>
-          {/* Define a clipping path */}
-          <ClipPath id="clip">
-            <Rect x="0" y="0" width={width} height={height} />
-          </ClipPath>
-        </Defs>
+          <Defs>
+  
+            {/* Define a clipping path */}
+            <ClipPath id="clip">
+              <Rect x="0" y="0" width={width} height={height} />
+            </ClipPath>
+          </Defs>
           {paths.map((item, index) => (
             <Path
               key={`path-${index}`}
@@ -523,15 +536,21 @@ const DrawingScreen = () => {
             strokeLinecap={'round'}
           />
         </Svg>
+  
+        {/* Prompt Generator */}
+        {isPromptGeneratorVisible && (
+          <View style={styles.promptContainer}>
+            {renderPromptGenerator()}
+          </View>
+        )}
       </View>
-      
-
+  
       <View style={styles.controlsContainer}>
         <TouchableOpacity style={styles.clearButton} onPress={handleClearButtonClick}>
           <Text style={styles.clearButtonText}>Clear</Text>
         </TouchableOpacity>
       </View>
-
+  
       <Modal visible={showColorPicker} animationType='slide'>
         <View style={styles.colorPickerContainer}>
           <ColorPicker style={{ width: '70%' }} value={selectedColor} onComplete={onSelectColor}>
@@ -544,7 +563,7 @@ const DrawingScreen = () => {
           <Button title='Ok' onPress={() => setShowColorPicker(false)} />
         </View>
       </Modal>
-
+  
       <Modal visible={showStrokeSizePicker} animationType='slide'>
         <View style={styles.strokeSizeContainer}>
           <Text>Stroke Size</Text>
@@ -558,12 +577,17 @@ const DrawingScreen = () => {
           <Button title='Ok' onPress={() => setShowStrokeSizePicker(false)} />
         </View>
       </Modal>
-
-      {renderPromptGenerator()}
+  
+      <View style={styles.switchContainer}>
+        <Text style={styles.switchLabel}>Show Prompt Generator</Text>
+        <Switch
+          value={isPromptGeneratorVisible}
+          onValueChange={(value) => setIsPromptGeneratorVisible(value)}
+        />
+      </View>
     </View>
   );
-};
-
+};  
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -590,7 +614,7 @@ const styles = StyleSheet.create({
   drawingtext: {
     fontSize: 32,
     fontWeight: 'bold',
-    marginTop: '3%',
+    marginTop: '10%',
     color: 'white',
 
   },
@@ -641,6 +665,7 @@ const styles = StyleSheet.create({
     width: width * 0.9,
     height: height * 0.7,
     backgroundColor: '#FFFFFF',
+    position: 'relative',
 
   },
   controlsContainer: {
@@ -649,11 +674,11 @@ const styles = StyleSheet.create({
   },
   clearButton: {
     padding: 10,
-    backgroundColor: 'red',
+    backgroundColor: 'white',
     borderRadius: 5,
   },
   clearButtonText: {
-    color: 'white',
+    color: '#213D61',
     fontWeight: 'bold',
   },
   colorPickerContainer: {
@@ -666,31 +691,56 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    margin: 16,
+    marginBottom: '5%',
+  },
+  switchLabel: {
+    fontSize: 16,
+    marginRight: 8,
+    color: 'white',
+  },
   promptGeneratorContainer: {
     position: 'absolute',
-    top: 80,
+    top: height * 0.02,
     left: 20,
     right: 20,
+    padding: 20,
     backgroundColor: 'white',
-    padding: 10,
     borderRadius: 10,
+    shadowColor: 'black',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
     elevation: 5,
   },
   promptText: {
     fontSize: 16,
-    fontWeight: 'bold',
     marginBottom: 10,
   },
   newPromptButton: {
-    alignSelf: 'center',
+    backgroundColor: '#213D61',
     padding: 10,
-    backgroundColor: '#007AFF',
     borderRadius: 5,
   },
   newPromptButtonText: {
     color: 'white',
-    fontWeight: 'bold',
+    fontSize: 14,
   },
+  promptContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: height * 0.1,
+    justifyContent: 'center', // Adjust as needed
+    alignItems: 'center', // Adjust as needed
+    backgroundColor: 'rgba(255, 255, 255, 0.8)', // Optional: adds a semi-transparent background to distinguish prompt
+    zIndex: 0, // Ensures it sits on top
+  },
+
 });
 
 export default DrawingScreen;
