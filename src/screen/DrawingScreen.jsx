@@ -19,6 +19,8 @@ const DrawingScreen = () => {
   const [showStrokeSizePicker, setShowStrokeSizePicker] = useState(false);
   const [isErasing, setIsErasing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+
+  const [showPromptGenerator, setShowPromptGenerator] = useState(false);
   const [currentPrompt, setCurrentPrompt] = useState('');
   const [isPromptGeneratorVisible, setIsPromptGeneratorVisible] = useState(false);
 
@@ -37,18 +39,27 @@ const DrawingScreen = () => {
   };
   const handleTouchStart = (event) => {
     const { locationX, locationY } = event.nativeEvent;
+    // Start a new path with the initial touch point
     setCurrentPath([{ x: locationX, y: locationY }]);
   };
-
+  
   const handleTouchMove = (event) => {
     const { locationX, locationY } = event.nativeEvent;
+    // Append new touch points to the current path
     setCurrentPath(prevPath => [...prevPath, { x: locationX, y: locationY }]);
   };
-
+  
   const handleTouchEnd = () => {
-    setPaths(prevPaths => [...prevPaths, { color: selectedColor, strokeWidth: strokeSize, path: currentPath }]);
-    setCurrentPath([]);
+    if (currentPath.length > 0) {
+      setPaths(prevPaths => [
+        ...prevPaths,
+        { color: selectedColor, size: strokeSize, path: currentPath }
+      ]);
+      setCurrentPath([]);
+    }
   };
+  
+  
 
   const topics = [
     "Draw your happy place.",
@@ -350,13 +361,12 @@ const DrawingScreen = () => {
     if (!isPromptGeneratorVisible) return null;
 
     return (
-
-      <Modal visible={showPromptGenerator} onRequestClose={() => setShowPromptGenerator(false)}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.promptText}>{getRandomPrompt()}</Text>
-          <Button title="Close" onPress={() => setShowPromptGenerator(false)} />
-        </View>
-      </Modal>
+      <View style={styles.promptGeneratorContainer}>
+        <Text style={styles.promptText}>{currentPrompt}</Text>
+        <TouchableOpacity style={styles.newPromptButton} onPress={pickRandomTopic}>
+          <Text style={styles.newPromptButtonText}>New Prompt</Text>
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -496,7 +506,7 @@ const DrawingScreen = () => {
         </TouchableOpacity>
       </View>
   
-      <View style={styles.svgContainer}>
+      <View style={styles.svgContainer} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
         <Svg height={height * 0.7} width={width * 0.9}  onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}  onTouchEnd={handleTouchEnd} >
 
           <Defs>
@@ -704,7 +714,7 @@ const styles = StyleSheet.create({
   },
   promptGeneratorContainer: {
     position: 'absolute',
-    top: height * 0.02,
+    top: height * 0.04,
     left: 20,
     right: 20,
     padding: 20,
@@ -736,8 +746,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: height * 0.1,
     justifyContent: 'center', // Adjust as needed
-    alignItems: 'center', // Adjust as needed
-    backgroundColor: 'rgba(255, 255, 255, 0.8)', // Optional: adds a semi-transparent background to distinguish prompt
+    alignItems: 'center', // Adjust as needed // Optional: adds a semi-transparent background to distinguish prompt
     zIndex: 0, // Ensures it sits on top
   },
 
