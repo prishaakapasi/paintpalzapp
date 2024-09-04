@@ -14,6 +14,8 @@
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
     "expo": "~51.0.24",
+    "expo-file-system": "~17.0.1",
+    "expo-media-library": "~16.0.4",
     "expo-status-bar": "~1.12.1",
     "expo-updates": "~0.25.21",
     "react": "18.2.0",

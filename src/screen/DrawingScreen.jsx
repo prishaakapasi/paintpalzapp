@@ -1,14 +1,56 @@
-import React, { useState, useRef } from 'react';
-import { View, StyleSheet, Dimensions, TouchableOpacity, Text, Modal, Button, Image, Switch } from 'react-native';
+import React, { useState, useRef, useEffect} from 'react';
+import { View, StyleSheet, Dimensions, TouchableOpacity, Text, Modal, Button, Image, Switch, Alert } from 'react-native';
 import { Svg, Path, Defs, ClipPath, Rect, G, Circle} from 'react-native-svg';
 import ColorPicker, { Panel1, Swatches, Preview, OpacitySlider, HueSlider } from 'reanimated-color-picker';
 import Slider from '@react-native-community/slider';
 import { useNavigation } from '@react-navigation/native';
 import Header from './Header';
+import * as MediaLibrary from 'expo-media-library';
+import { captureRef } from 'react-native-view-shot'
 
 const { height, width } = Dimensions.get('window');
 const DrawingScreen = () => {
   const navigation = useNavigation();
+
+  const svgRef = useRef();
+
+  useEffect(() => {
+    requestPermissions();
+  }, []);
+
+  const requestPermissions = async () => {
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert(
+        'Media Access Required',
+        'This app needs permission to access your camera roll to save images.',
+        [
+          { text: 'Allow', onPress: requestPermissions }, // Retry permission if denied
+          { text: 'Cancel', style: 'cancel' },
+        ]
+      );
+    }
+  };
+
+  const handleSaveToCameraRoll = async () => {
+    try {
+      // Capture the SVG content as an image
+      const uri = await captureRef(svgRef, {
+        format: 'png', // Save as PNG
+        quality: 1,    // Set quality to maximum
+      });
+
+      // Save the image to the camera roll
+      const asset = await MediaLibrary.createAssetAsync(uri);
+      await MediaLibrary.createAlbumAsync('My Drawings', asset, false);
+
+      // Show success message
+      Alert.alert('Success', 'Image successfully saved to Camera Roll!');
+    } catch (error) {
+      console.error('Error saving image:', error);
+      Alert.alert('Error', 'Failed to save the image.');
+    }
+  };
 
   const [paths, setPaths] = useState([]);
   const [dots, setDots] = useState([]);
@@ -496,7 +538,9 @@ const DrawingScreen = () => {
           style={[styles.downloadbutton, isEditing ? styles.buttonActive : null]}
           onPress={() => {}}
         >
+        <TouchableOpacity onPress={handleSaveToCameraRoll}>
           <Image source={require("../screen/assets/🦆 icon _Download_.png")} style={styles.download} />
+      </TouchableOpacity>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.eraserbutton, isErasing ? styles.buttonActive : null]}
@@ -506,55 +550,73 @@ const DrawingScreen = () => {
         </TouchableOpacity>
       </View>
   
-      <View style={styles.svgContainer} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
-        <Svg height={height * 0.7} width={width * 0.9}  onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}  onTouchEnd={handleTouchEnd} >
+      <View 
+  ref={svgRef} 
+  style={[styles.svgContainer, { backgroundColor: 'white' }]} // Added white background
+  onTouchStart={handleTouchStart}
+  onTouchMove={handleTouchMove}
+  onTouchEnd={handleTouchEnd}
+>
 
-          <Defs>
-  
-            {/* Define a clipping path */}
-            <ClipPath id="clip">
-              <Rect x="0" y="0" width={width} height={height} />
-            </ClipPath>
-          </Defs>
-          {paths.map((item, index) => (
-            <Path
-              key={`path-${index}`}
-              d={renderPath(item.path)}
-              stroke={item.color}
-              fill={'transparent'}
-              strokeWidth={item.size}
-              strokeLinejoin={'round'}
-              strokeLinecap={'round'}
-              clipPath="url(#clip)"
-            />
-          ))}
-          {dots.map((dot, index) => (
-            <Circle
-              key={`dot-${index}`}
-              cx={dot.x}
-              cy={dot.y}
-              r={dot.size / 2}
-              fill={dot.color}
-            />
-          ))}
-          <Path
-            d={renderPath(currentPath)}
-            stroke={selectedColor}
-            fill={'transparent'}
-            strokeWidth={strokeSize}
-            strokeLinejoin={'round'}
-            strokeLinecap={'round'}
-          />
-        </Svg>
-  
-        {/* Prompt Generator */}
-        {isPromptGeneratorVisible && (
-          <View style={styles.promptContainer}>
-            {renderPromptGenerator()}
-          </View>
-        )}
-      </View>
-  
+  <Svg 
+    height={height * 0.7} 
+    width={width * 0.9}
+    onTouchStart={handleTouchStart} 
+    onTouchMove={handleTouchMove}  
+    onTouchEnd={handleTouchEnd}
+  >
+    <Defs>
+      {/* Define a clipping path */}
+      <ClipPath id="clip">
+        <Rect x="0" y="0" width={width} height={height} />
+      </ClipPath>
+    </Defs>
+
+    {/* Render existing paths */}
+    {paths.map((item, index) => (
+      <Path
+        key={`path-${index}`}
+        d={renderPath(item.path)}
+        stroke={item.color}
+        fill={'transparent'}
+        strokeWidth={item.size}
+        strokeLinejoin={'round'}
+        strokeLinecap={'round'}
+        clipPath="url(#clip)"
+      />
+    ))}
+
+    {/* Render dots */}
+    {dots.map((dot, index) => (
+      <Circle
+        key={`dot-${index}`}
+        cx={dot.x}
+        cy={dot.y}
+        r={dot.size / 2}
+        fill={dot.color}
+      />
+    ))}
+
+    {/* Render current path in progress */}
+    <Path
+      d={renderPath(currentPath)}
+      stroke={selectedColor}
+      fill={'transparent'}
+      strokeWidth={strokeSize}
+      strokeLinejoin={'round'}
+      strokeLinecap={'round'}
+    />
+  </Svg>
+
+  {/* Prompt Generator */}
+  {isPromptGeneratorVisible && (
+    <View style={styles.promptContainer}>
+      {renderPromptGenerator()}
+    </View>
+  )}
+
+</View>
+
       <View style={styles.controlsContainer}>
         <TouchableOpacity style={styles.clearButton} onPress={handleClearButtonClick}>
           <Text style={styles.clearButtonText}>Clear</Text>
