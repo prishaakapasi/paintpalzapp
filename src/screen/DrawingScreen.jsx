@@ -6,7 +6,8 @@ import Slider from '@react-native-community/slider';
 import { useNavigation } from '@react-navigation/native';
 import Header from './Header';
 import * as MediaLibrary from 'expo-media-library';
-import { captureRef } from 'react-native-view-shot'
+import { captureRef } from 'react-native-view-shot';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { height, width } = Dimensions.get('window');
 const DrawingScreen = () => {
@@ -44,8 +45,7 @@ const DrawingScreen = () => {
       const asset = await MediaLibrary.createAssetAsync(uri);
       await MediaLibrary.createAlbumAsync('My Drawings', asset, false);
 
-      // Show success message
-      Alert.alert('Success', 'Image successfully saved to Camera Roll!');
+      Alert.alert('Success', 'Drawing saved to Camera Roll!');
     } catch (error) {
       console.error('Error saving image:', error);
       Alert.alert('Error', 'Failed to save the image.');
@@ -483,6 +483,45 @@ const DrawingScreen = () => {
     setCurrentPath([]);
   };
 
+  const saveImageToGalleryStorage = async (imageData) => {
+    try {
+      // Get the existing gallery images from storage
+      const existingGallery = await AsyncStorage.getItem('gallery');
+      const gallery = existingGallery ? JSON.parse(existingGallery) : [];
+  
+      // Add the new image to the gallery
+      gallery.push(imageData);
+  
+      // Save the updated gallery back to AsyncStorage
+      await AsyncStorage.setItem('gallery', JSON.stringify(gallery));
+      Alert.alert('Success', 'Image added to gallery');
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Failed to add image to gallery');
+    }
+  };
+  
+  // Handle the Add to Gallery button click
+  const handleAddToGalleryClick = async () => {
+    try {
+      // Replace this with the actual SVG data you have
+      const svgData = 'your-svg-data'; 
+  
+      // Convert SVG to PNG
+      const pngData = await convertSvgToPng(svgData);
+  
+      // Save the PNG data to AsyncStorage
+      await saveImageToGalleryStorage(pngData);
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Failed to save image');
+    }
+  };
+  
+  const convertSvgToPng = async (svgData) => {
+    return svgData; 
+  };
+  
   const renderPath = (path) => {
     return path.map((point, index) => `${index === 0 ? 'M' : 'L'}${point.x},${point.y}`).join(' ');
   };
@@ -559,11 +598,11 @@ const DrawingScreen = () => {
 >
 
   <Svg 
-    height={height * 0.7} 
-    width={width * 0.9}
-    onTouchStart={handleTouchStart} 
-    onTouchMove={handleTouchMove}  
-    onTouchEnd={handleTouchEnd}
+   height={height * 0.7} 
+   width={width * 0.9}
+   onTouchStart={handleTouchStart} 
+   onTouchMove={onTouchMove}  
+   onTouchEnd={onTouchEnd}
   >
     <Defs>
       {/* Define a clipping path */}
@@ -617,12 +656,19 @@ const DrawingScreen = () => {
 
 </View>
 
-      <View style={styles.controlsContainer}>
-        <TouchableOpacity style={styles.clearButton} onPress={handleClearButtonClick}>
-          <Text style={styles.clearButtonText}>Clear</Text>
-        </TouchableOpacity>
-      </View>
-  
+<View style={styles.controlsRow}>
+  <View style={styles.controlsContainer}>
+    <TouchableOpacity style={styles.clearButton} onPress={handleClearButtonClick}>
+      <Text style={styles.clearButtonText}>Clear</Text>
+    </TouchableOpacity>
+  </View>
+  <View style={styles.controlsContainer}>
+    <TouchableOpacity style={styles.addToGalleryButton} onPress={handleAddToGalleryClick}>
+      <Text style={styles.addToGalleryButtonText}>Add to Gallery!</Text>
+    </TouchableOpacity>
+  </View>
+</View>
+
       <Modal visible={showColorPicker} animationType='slide'>
         <View style={styles.colorPickerContainer}>
           <ColorPicker style={{ width: '70%' }} value={selectedColor} onComplete={onSelectColor}>
@@ -642,7 +688,7 @@ const DrawingScreen = () => {
           <Slider
             style={{ width: 200, height: 40 }}
             minimumValue={1}
-            maximumValue={50}
+            maximumValue={100}
             value={strokeSize}
             onValueChange={setStrokeSize}
           />
@@ -730,9 +776,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
   },
-  buttonActive: {
-    backgroundColor: 'lightgray',
-  },
+  
   svgContainer: {
     width: width * 0.9,
     height: height * 0.7,
@@ -750,6 +794,21 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   clearButtonText: {
+    color: '#213D61',
+    fontWeight: 'bold',
+  },
+  controlsRow: {
+    flexDirection: 'row',           
+    justifyContent: 'space-between', 
+    alignItems: 'center',           
+    paddingHorizontal: 10,         
+  },
+  addToGalleryButton: {
+    padding: 10,
+    backgroundColor: 'white',
+    borderRadius: 5,
+  },
+  addToGalleryButtonText: {
     color: '#213D61',
     fontWeight: 'bold',
   },
