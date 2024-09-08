@@ -484,6 +484,9 @@ const DrawingScreen = () => {
   };
 
   // Save the image to AsyncStorage
+  const svgData = '<svg>Your SVG Data Here</svg>'; // This should be dynamically set to your SVG data
+
+  // Save the image to AsyncStorage
   const saveImageToGalleryStorage = async (imageData) => {
     try {
       const existingGallery = await AsyncStorage.getItem('gallery');
@@ -497,19 +500,28 @@ const DrawingScreen = () => {
     }
   };
 
-  // Convert canvas drawing to PNG and save
+  // Convert SVG to PNG using a library or service
+  const convertSvgToPng = async (svgXml) => {
+    try {
+      // Convert SVG to a base64 PNG image
+      // Use a library or service to handle this conversion.
+      // The example uses a placeholder function to illustrate.
+      const pngBase64 = await RNFS.readFile(svgXml, 'base64');
+      return pngBase64;
+    } catch (error) {
+      console.error('Failed to convert SVG to PNG', error);
+      throw error;
+    }
+  };
+
+  // Handle the Add to Gallery button click
   const handleAddToGalleryClick = async () => {
     try {
-      const canvas = canvasRef.current;
-      if (!canvas) {
-        Alert.alert('Error', 'Canvas is not initialized');
-        return;
-      }
-
-      const imageDataUrl = canvas.toDataURL('image/png');
-      const base64Data = imageDataUrl.replace(/^data:image\/png;base64,/, '');
-
-      await saveImageToGalleryStorage(base64Data);
+      // Convert SVG to PNG
+      const pngData = await convertSvgToPng(svgData);
+  
+      // Save the PNG data to AsyncStorage
+      await saveImageToGalleryStorage(pngData);
     } catch (error) {
       console.error('Failed to save image', error);
       Alert.alert('Error', 'Failed to save image');
@@ -544,10 +556,11 @@ const DrawingScreen = () => {
           <Image source={require("../screen/assets/home.png")} style={styles.home} />
         </TouchableOpacity>
       </View>
-      <Header text={headerText} onSettingsPress={handleSettingsPress} />
-      <View style={styles.textContainer}>
-        <Text style={styles.drawingtext}>DRAWING</Text>
-      </View>
+      <Header 
+        onSettingsPress={() => console.log('Settings Pressed')}
+        iconColor="#FFFFFF" // Set icon color to white
+        textColor="#FFFFFF" // Set text color to white
+      />
       <View style={styles.buttonRow}>
         <TouchableOpacity
           style={[styles.palettebutton, isEditing ? styles.buttonActive : null]}
@@ -649,6 +662,7 @@ const DrawingScreen = () => {
   )}
 
 </View>
+<View style={styles.line} />
 
 <View style={styles.controlsRow}>
   <View style={styles.controlsContainer}>
@@ -709,7 +723,8 @@ const styles = StyleSheet.create({
   },
   homeButton: {
     position: 'absolute',
-    top: '3%', // Adjust as necessary
+    top: '3%', 
+    marginTop:'5%', // Adjust as necessary
     right: '5%', // Adjust as necessary
     zIndex: 10,
   },
@@ -719,24 +734,24 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     flex: 'right',
   },
+  line: {
+    height: 2, // Adjust height of the line
+    backgroundColor: 'white', // Line color
+    marginBottom: 0,
+  },
   textContainer: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  drawingtext: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginTop: '10%',
-    color: 'white',
-
-  },
   buttonRow: {
+    marginTop: '23%',
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginVertical: 10,
   },
   palettebutton: {
     padding: 10,
+    tintColor: 'blue',
   },
   palette: {
     width: 30,

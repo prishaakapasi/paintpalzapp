@@ -4,7 +4,7 @@ import { View, Image, Text, StyleSheet, Dimensions, TouchableOpacity } from 'rea
 const { width } = Dimensions.get('window');
 const isLargeScreen = width > 600;
 
-const Header = ({ text, onSettingsPress, whiteHeader }) => {
+const Header = ({ text, onSettingsPress, whiteHeader, iconColor = '#000', textColor = '#000' }) => {
   const styles = whiteHeader ? stylesWhite : (isLargeScreen ? stylesLargeScreen : stylesPhone);
 
   return (
@@ -13,11 +13,17 @@ const Header = ({ text, onSettingsPress, whiteHeader }) => {
         style={styles.touchable}
         onPress={onSettingsPress}
       >
-        <Image source={require("../screen/assets/settings.png")} style={styles.setting} />
+        <Image 
+          source={require("../screen/assets/settings.png")} 
+          style={[styles.setting, { tintColor: iconColor }]} 
+        />
       </TouchableOpacity>
       <View style={styles.headerContent}>
-        <Text style={styles.headerText}>{text}</Text>
-        <Image source={require("../screen/assets/toll.png")} style={styles.coins} />
+        <Text style={[styles.headerText, { color: textColor }]}>{text}</Text>
+        <Image 
+          source={require("../screen/assets/toll.png")} 
+          style={[styles.coins, { tintColor: iconColor }]} 
+        />
       </View>
     </View>
   );
@@ -38,7 +44,6 @@ const stylesPhone = StyleSheet.create({
   },
   headerText: {
     fontSize: 20,
-    color: '#213D61',
     marginRight: 5,
   },
   coins: {
@@ -52,8 +57,8 @@ const stylesPhone = StyleSheet.create({
     resizeMode: 'contain',
   },
   touchable: {
-    padding: 10, // Added padding to ensure touch area
-    backgroundColor: 'rgba(0,0,0,0)', // Transparent background for debugging
+    padding: 10,
+    backgroundColor: 'rgba(0,0,0,0)',
   },
 });
 
@@ -72,7 +77,6 @@ const stylesLargeScreen = StyleSheet.create({
   },
   headerText: {
     fontSize: 25,
-    color: '#213D61',
     marginRight: 10,
   },
   coins: {
@@ -86,8 +90,8 @@ const stylesLargeScreen = StyleSheet.create({
     resizeMode: 'contain',
   },
   touchable: {
-    padding: 10, // Added padding to ensure touch area
-    backgroundColor: 'rgba(0,0,0,0)', // Transparent background for debugging
+    padding: 10,
+    backgroundColor: 'rgba(0,0,0,0)',
   },
 });
 
@@ -109,7 +113,6 @@ const stylesWhite = StyleSheet.create({
   },
   headerText: {
     fontSize: 20,
-    color: '#213D61',
     marginRight: 5,
   },
   coins: {
@@ -123,8 +126,8 @@ const stylesWhite = StyleSheet.create({
     resizeMode: 'contain',
   },
   touchable: {
-    padding: 10, // Added padding to ensure touch area
-    backgroundColor: 'rgba(0,0,0,0)', // Transparent background for debugging
+    padding: 10,
+    backgroundColor: 'rgba(0,0,0,0)',
   },
 });
 
