@@ -12,7 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const { height, width } = Dimensions.get('window');
 const DrawingScreen = () => {
   const navigation = useNavigation();
-
+  const canvasRef = useRef(null);
   const svgRef = useRef();
 
   useEffect(() => {
@@ -483,16 +483,12 @@ const DrawingScreen = () => {
     setCurrentPath([]);
   };
 
+  // Save the image to AsyncStorage
   const saveImageToGalleryStorage = async (imageData) => {
     try {
-      // Get the existing gallery images from storage
       const existingGallery = await AsyncStorage.getItem('gallery');
       const gallery = existingGallery ? JSON.parse(existingGallery) : [];
-  
-      // Add the new image to the gallery
       gallery.push(imageData);
-  
-      // Save the updated gallery back to AsyncStorage
       await AsyncStorage.setItem('gallery', JSON.stringify(gallery));
       Alert.alert('Success', 'Image added to gallery');
     } catch (error) {
@@ -500,28 +496,26 @@ const DrawingScreen = () => {
       Alert.alert('Error', 'Failed to add image to gallery');
     }
   };
-  
-  // Handle the Add to Gallery button click
+
+  // Convert canvas drawing to PNG and save
   const handleAddToGalleryClick = async () => {
     try {
-      // Replace this with the actual SVG data you have
-      const svgData = 'your-svg-data'; 
-  
-      // Convert SVG to PNG
-      const pngData = await convertSvgToPng(svgData);
-  
-      // Save the PNG data to AsyncStorage
-      await saveImageToGalleryStorage(pngData);
+      const canvas = canvasRef.current;
+      if (!canvas) {
+        Alert.alert('Error', 'Canvas is not initialized');
+        return;
+      }
+
+      const imageDataUrl = canvas.toDataURL('image/png');
+      const base64Data = imageDataUrl.replace(/^data:image\/png;base64,/, '');
+
+      await saveImageToGalleryStorage(base64Data);
     } catch (error) {
-      console.error(error);
+      console.error('Failed to save image', error);
       Alert.alert('Error', 'Failed to save image');
     }
   };
-  
-  const convertSvgToPng = async (svgData) => {
-    return svgData; 
-  };
-  
+
   const renderPath = (path) => {
     return path.map((point, index) => `${index === 0 ? 'M' : 'L'}${point.x},${point.y}`).join(' ');
   };
@@ -776,7 +770,6 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
   },
-  
   svgContainer: {
     width: width * 0.9,
     height: height * 0.7,

@@ -11,6 +11,7 @@ const HomeScreen = () => {
 
   const handleGalleryPress = () => {
     console.log("Gallery button pressed");
+    navigation.navigate('Gallery');
   };
 
   const handlePaintByNumbersPress = () => {
