@@ -12,8 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const { height, width } = Dimensions.get('window');
 const DrawingScreen = () => {
   const navigation = useNavigation();
-  const canvasRef = useRef(null);
-  const svgRef = useRef();
+  const svgRef = useRef(null);
 
   useEffect(() => {
     requestPermissions();
@@ -491,42 +490,43 @@ const DrawingScreen = () => {
     try {
       const existingGallery = await AsyncStorage.getItem('gallery');
       const gallery = existingGallery ? JSON.parse(existingGallery) : [];
-      gallery.push(imageData);
+      gallery.push(`data:image/png;base64,${imageData}`); // Save as base64 PNG
       await AsyncStorage.setItem('gallery', JSON.stringify(gallery));
       Alert.alert('Success', 'Image added to gallery');
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Error', 'Failed to add image to gallery');
-    }
-  };
-
-  // Convert SVG to PNG using a library or service
-  const convertSvgToPng = async (svgXml) => {
-    try {
-      // Convert SVG to a base64 PNG image
-      // Use a library or service to handle this conversion.
-      // The example uses a placeholder function to illustrate.
-      const pngBase64 = await RNFS.readFile(svgXml, 'base64');
-      return pngBase64;
-    } catch (error) {
-      console.error('Failed to convert SVG to PNG', error);
-      throw error;
-    }
-  };
-
-  // Handle the Add to Gallery button click
-  const handleAddToGalleryClick = async () => {
-    try {
-      // Convert SVG to PNG
-      const pngData = await convertSvgToPng(svgData);
-  
-      // Save the PNG data to AsyncStorage
-      await saveImageToGalleryStorage(pngData);
     } catch (error) {
       console.error('Failed to save image', error);
       Alert.alert('Error', 'Failed to save image');
     }
   };
+
+
+  // Handle the Add to Gallery button click
+  const handleAddToGalleryClick = async () => {
+    try {
+      // Capture SVG as a PNG (base64)
+      const pngData = await captureRef(svgRef, {
+        format: 'png',
+        quality: 0.8,
+        result: 'base64',
+      });
+
+      // Save PNG data to AsyncStorage
+      await saveImageToGalleryStorage(pngData);
+
+      // Navigate to GalleryScreen to view saved image
+      navigation.navigate('Gallery');
+    } catch (error) {
+      console.error('Failed to save image', error);
+      Alert.alert('Error', 'Failed to save image');
+    }
+  };
+
+  const renderItem = ({ item }) => (
+    <Image
+      source={{ uri: item }} // Base64 image
+      style={styles.image}
+    />
+  );
 
   const renderPath = (path) => {
     return path.map((point, index) => `${index === 0 ? 'M' : 'L'}${point.x},${point.y}`).join(' ');
@@ -751,7 +751,6 @@ const styles = StyleSheet.create({
   },
   palettebutton: {
     padding: 10,
-    tintColor: 'blue',
   },
   palette: {
     width: 30,

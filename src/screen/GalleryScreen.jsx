@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Image, FlatList, Alert } from 'react-native';
+import { StyleSheet, View, FlatList, Image, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const GalleryScreen = () => {
@@ -12,8 +12,8 @@ const GalleryScreen = () => {
         const gallery = existingGallery ? JSON.parse(existingGallery) : [];
         setGallery(gallery);
       } catch (error) {
-        console.error(error);
-        Alert.alert('Error', 'Failed to load images');
+        console.error('Error fetching gallery', error);
+        Alert.alert('Error', 'Failed to load gallery images');
       }
     };
 
@@ -21,10 +21,7 @@ const GalleryScreen = () => {
   }, []);
 
   const renderItem = ({ item }) => (
-    <Image
-      source={{ uri: item }} // Assuming image data is a URI
-      style={styles.image}
-    />
+    <Image source={{ uri: item }} style={styles.image} />
   );
 
   return (
