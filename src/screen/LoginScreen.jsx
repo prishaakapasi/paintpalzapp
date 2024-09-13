@@ -1,6 +1,7 @@
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Image, Dimensions, TextInput, TouchableOpacity, Alert } from 'react-native';
-import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 const isLargeScreen = width > 600;
@@ -10,7 +11,23 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-const handleSignIn = () => {
+  useEffect(() => {
+    const initializeHeaderText = async () => {
+      try {
+        const storedText = await AsyncStorage.getItem('headerText');
+        if (storedText === null) {
+          await AsyncStorage.setItem('headerText', '0'); // Initial value
+        }
+      } catch (error) {
+        console.error('Error initializing headerText:', error);
+        Alert.alert('Error', 'Failed to initialize header text');
+      }
+    };
+
+    initializeHeaderText();
+  }, []);
+
+  const handleSignIn = () => {
     if (!validateEmail(email)) {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
@@ -74,7 +91,7 @@ const handleSignIn = () => {
       </View>
     </View>
   );
-}
+};
 
 export default LoginScreen;
 

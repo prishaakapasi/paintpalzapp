@@ -1,11 +1,27 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Image, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 const isLargeScreen = width > 600;
 
-const Header = ({ text, onSettingsPress, whiteHeader, iconColor = '#000', textColor = '#000' }) => {
-  const styles = whiteHeader ? stylesWhite : (isLargeScreen ? stylesLargeScreen : stylesPhone);
+const Header = ({ onSettingsPress, iconColor = '#000000', textColor = '#000000' }) => {
+  const [headerText, setHeaderText] = useState('0');
+
+  useEffect(() => {
+    const loadHeaderText = async () => {
+      try {
+        const storedText = await AsyncStorage.getItem('headerText');
+        if (storedText) {
+          setHeaderText(storedText);
+        }
+      } catch (error) {
+        console.error('Failed to load header text', error);
+      }
+    };
+
+    loadHeaderText();
+  }, []);
 
   return (
     <View style={styles.headerContainer}>
@@ -13,21 +29,16 @@ const Header = ({ text, onSettingsPress, whiteHeader, iconColor = '#000', textCo
         style={styles.touchable}
         onPress={onSettingsPress}
       >
-        <Image 
-          source={require("../screen/assets/settings.png")} 
-          style={[styles.setting, { tintColor: iconColor }]} 
-        />
+        <Image source={require("../screen/assets/settings.png")} style={[styles.setting, { tintColor: iconColor }]} />
       </TouchableOpacity>
       <View style={styles.headerContent}>
-        <Text style={[styles.headerText, { color: textColor }]}>{text}</Text>
-        <Image 
-          source={require("../screen/assets/toll.png")} 
-          style={[styles.coins, { tintColor: iconColor }]} 
-        />
+        <Text style={[styles.headerText, { color: textColor }]}>{headerText}</Text>
+        <Image source={require("../screen/assets/toll.png")} style={[styles.coins, { tintColor: iconColor }]} />
       </View>
     </View>
   );
 };
+
 
 const stylesPhone = StyleSheet.create({
   headerContainer: {
@@ -57,8 +68,8 @@ const stylesPhone = StyleSheet.create({
     resizeMode: 'contain',
   },
   touchable: {
-    padding: 10,
-    backgroundColor: 'rgba(0,0,0,0)',
+    padding: 10, // Added padding to ensure touch area
+    backgroundColor: 'rgba(0,0,0,0)', // Transparent background for debugging
   },
 });
 
@@ -90,45 +101,11 @@ const stylesLargeScreen = StyleSheet.create({
     resizeMode: 'contain',
   },
   touchable: {
-    padding: 10,
-    backgroundColor: 'rgba(0,0,0,0)',
+    padding: 10, // Added padding to ensure touch area
+    backgroundColor: 'rgba(0,0,0,0)', // Transparent background for debugging
   },
 });
 
-const stylesWhite = StyleSheet.create({
-  headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    position: 'absolute',
-    top: 50,
-    left: 10,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 60,
-  },
-  headerText: {
-    fontSize: 20,
-    marginRight: 5,
-  },
-  coins: {
-    width: 25,
-    height: 25,
-    resizeMode: 'contain',
-  },
-  setting: {
-    width: 30,
-    height: 30,
-    resizeMode: 'contain',
-  },
-  touchable: {
-    padding: 10,
-    backgroundColor: 'rgba(0,0,0,0)',
-  },
-});
+const styles = isLargeScreen ? stylesLargeScreen : stylesPhone;
 
 export default Header;

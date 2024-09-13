@@ -10,9 +10,12 @@ import { captureRef } from 'react-native-view-shot';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { height, width } = Dimensions.get('window');
+
 const DrawingScreen = () => {
   const navigation = useNavigation();
   const svgRef = useRef(null);
+
+  const [headerText, setHeaderText] = useState('0'); 
 
   useEffect(() => {
     requestPermissions();
@@ -519,6 +522,9 @@ const DrawingScreen = () => {
       console.error('Failed to save image', error);
       Alert.alert('Error', 'Failed to save image');
     }
+    const storedHeaderText = await AsyncStorage.getItem('headerText');
+    const newHeaderText = (parseInt(storedHeaderText) + 10).toString();
+    await AsyncStorage.setItem('headerText', newHeaderText);
   };
 
   const renderItem = ({ item }) => (
@@ -547,8 +553,6 @@ const DrawingScreen = () => {
     setIsEditing(!isEditing);
   };
 
-  const [headerText, setHeaderText] = useState('0');
-
   return (
     <View style={styles.container}>
       <View style={styles.homeButton}>
@@ -557,6 +561,7 @@ const DrawingScreen = () => {
         </TouchableOpacity>
       </View>
       <Header 
+        text={headerText}
         onSettingsPress={() => console.log('Settings Pressed')}
         iconColor="#FFFFFF" // Set icon color to white
         textColor="#FFFFFF" // Set text color to white
