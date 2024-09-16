@@ -5,11 +5,6 @@ import Header from './Header';
 import { useNavigation } from '@react-navigation/native';
 
 // Example URIs for excluded items
-const EXCLUDED_ITEMS = [
-  'uri1', // Replace with actual URIs of excluded images
-  'uri2',
-];
-
 const GalleryButton = () => (
   <View style={styles.galleryButtonContainer}>
     <TouchableOpacity style={styles.button}>
@@ -78,14 +73,10 @@ const GalleryScreen = () => {
   };
 
   const openModal = (imageUri) => {
-    if (!EXCLUDED_ITEMS.includes(imageUri)) {
-      setSelectedImage(imageUri);
-      setModalVisible(true);
-    } else {
-      Alert.alert('Notice', 'This image cannot be viewed.');
-    }
+    setSelectedImage(imageUri);
+    setModalVisible(true);
   };
-
+  
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={() => openModal(item)}>
       <Image source={{ uri: item }} style={styles.image} />
@@ -113,11 +104,11 @@ const GalleryScreen = () => {
         contentContainerStyle={styles.flatListContainer}
         style={[styles.flatList, { marginTop: screenHeight * 0.1 }]}
       />
-      {selectedImage && !EXCLUDED_ITEMS.includes(selectedImage) && (
-        <Modal
-          visible={modalVisible}
-          transparent={true}
-          onRequestClose={() => setModalVisible(false)}
+      {selectedImage && (
+    <Modal
+    visible={modalVisible}
+    transparent={true}
+    onRequestClose={() => setModalVisible(false)}
         >
           <View style={styles.modalContainer}>
             <Image source={{ uri: selectedImage }} style={styles.fullScreenImage} />

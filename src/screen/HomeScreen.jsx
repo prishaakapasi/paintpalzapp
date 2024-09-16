@@ -1,4 +1,4 @@
-import { StyleSheet, View, Image, Dimensions, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Image, Dimensions, TouchableOpacity, useEffect } from 'react-native';
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
 import Header from './Header'; // Import the Header component
@@ -26,6 +26,7 @@ const HomeScreen = () => {
   const handleSettingsPress = () => {
     console.log("Settings button pressed");
   };
+  
 
   const [headerText, setHeaderText] = useState('0'); // State for the header text
 
