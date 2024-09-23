@@ -47,7 +47,7 @@ const LoginScreen = () => {
   };
 
   const handleCreateAccount = () => {
-    navigation.navigate('SignUpScreen'); 
+    navigation.navigate('Sign Up'); 
   };
 
   return (
