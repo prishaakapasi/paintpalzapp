@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Image, Dimensions, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from '../../lib/supabase'; // Import the Supabase client
 
 const { width } = Dimensions.get('window');
 const isLargeScreen = width > 600;
@@ -27,13 +28,25 @@ const LoginScreen = () => {
     initializeHeaderText();
   }, []);
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     if (!validateEmail(email)) {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
-    console.log('Sign In button pressed');
-    navigation.navigate('Home');
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      if (error) throw error;
+
+      console.log('Sign In successful');
+      navigation.navigate('Home');
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
   };
 
   const validateEmail = (email) => {
