@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Image, Dimensions, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { supabase } from '../../lib/supabase'; // Import the Supabase client
+import { supabase } from '../../lib/supabase'; 
 
 const { width } = Dimensions.get('window');
 const isLargeScreen = width > 600;
@@ -55,8 +55,9 @@ const LoginScreen = () => {
   };
 
   const handleForgotPassword = () => {
-    // Add your forgot password logic here
+   
     console.log('Forgot Password pressed');
+    navigation.navigate('Forgot Password');
   };
 
   const handleCreateAccount = () => {

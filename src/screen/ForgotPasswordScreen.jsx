@@ -1,77 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, Image, Dimensions, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { supabase } from '../../lib/supabase'; 
+import { supabase } from '../../lib/supabase'; // Ensure your Supabase client is correctly imported
+
 const { width } = Dimensions.get('window');
 const isLargeScreen = width > 600;
 
-const SignUpScreen = () => {
+const ForgotPasswordScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
 
-  useEffect(() => {
-    const initializeHeaderText = async () => {
-      try {
-        const storedText = await AsyncStorage.getItem('headerText');
-        if (storedText === null) {
-          await AsyncStorage.setItem('headerText', '0'); // Initial value
-        }
-      } catch (error) {
-        console.error('Error initializing headerText:', error);
-        Alert.alert('Error', 'Failed to initialize header text');
-      }
-    };
-
-    initializeHeaderText();
-  }, []);
-
-  const handleSignUp = async () => {
+  const handleForgotPassword = async () => {
     // Email validation
     if (!validateEmail(email)) {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
 
-    // Password validation
-    if (password.length < 8) {
-      Alert.alert('Password Error', 'Password must be at least 8 characters long.');
-      return;
-    }
-
-    // Check if password contains at least one special symbol
-    const specialSymbolRegex = /[!@#$%^&*(),.?":{}|<>]/;
-    if (!specialSymbolRegex.test(password)) {
-      Alert.alert('Password Error', 'Password must contain at least one special symbol (e.g., !, @, #, $, etc.).');
-      return;
-    }
-
-    // Confirm password validation
-    if (password !== confirmPassword) {
-      Alert.alert('Password Mismatch', 'Passwords do not match. Please try again.');
-      return;
-    }
-
     try {
-      const { user, session, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-      console.log(user, session, error)
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email);
 
       if (error) {
         console.error('Supabase Error:', error);
         Alert.alert('Error', `Error: ${error.message}`);
-        return; // Prevent further execution
       } else {
-        Alert.alert('Success', 'Check your email for a confirmation link.');
-        navigation.navigate('Login'); // Navigate to Login after successful sign-up
+        Alert.alert('Success', 'Check your email for password reset instructions.');
+        navigation.navigate('Login'); // Navigate back to Login after successful password reset request
       }
     } catch (err) {
-      console.error('Error during sign-up:', err);
-      Alert.alert('Sign Up Error', 'An error occurred while signing up. Please try again.');
+      console.error('Error during password reset:', err);
+      Alert.alert('Error', 'An error occurred while requesting password reset. Please try again.');
     }
   };
 
@@ -86,7 +44,7 @@ const SignUpScreen = () => {
         <Image source={require("../screen/assets/paintpalzlogo.png")} style={styles.logo} />
       </View>
       <View style={styles.textContainer}>
-        <Text style={styles.text}>CREATE AN ACCOUNT</Text>
+        <Text style={styles.text}>RESET YOUR PASSWORD</Text>
       </View>
       <View style={styles.inputContainer}>
         <TextInput
@@ -98,29 +56,11 @@ const SignUpScreen = () => {
           onChangeText={setEmail}
         />
       </View>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.textInput}
-          placeholder='PASSWORD'
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-      </View>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.textInput}
-          placeholder='CONFIRM PASSWORD'
-          secureTextEntry
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-        />
-      </View>
-      <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
-        <Text style={styles.signUpButtonText}>SIGN UP</Text>
+      <TouchableOpacity style={styles.resetButton} onPress={handleForgotPassword}>
+        <Text style={styles.resetButtonText}>RESET PASSWORD</Text>
       </TouchableOpacity>
       <View style={styles.loginContainer}>
-        <Text style={styles.loginText}>Already have an account? </Text>
+        <Text style={styles.loginText}>Remember your password? </Text>
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
           <Text style={styles.loginLinkText}>Login</Text>
         </TouchableOpacity>
@@ -129,7 +69,7 @@ const SignUpScreen = () => {
   );
 };
 
-export default SignUpScreen;
+export default ForgotPasswordScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -156,7 +96,7 @@ const styles = StyleSheet.create({
   text: {
     color: '#FFFFFF',
     fontSize: isLargeScreen ? 30 : 25,
-    fontWeight: "bold", 
+    fontWeight: "bold",
   },
   inputContainer: {
     backgroundColor: "#FFFFFF",
@@ -174,7 +114,7 @@ const styles = StyleSheet.create({
     marginRight: '5%',
     fontSize: isLargeScreen ? 22 : 17,
   },
-  signUpButton: {
+  resetButton: {
     backgroundColor: "#FFFFFF",
     paddingVertical: '3%',
     paddingHorizontal: '5%',
@@ -182,9 +122,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
   },
-  signUpButtonText: {
+  resetButtonText: {
     color: "#213D61",
-    fontSize: isLargeScreen ? 30 : 25,
+    fontSize: isLargeScreen ? 30 : 20,
     fontWeight: "bold",
   },
   loginContainer: {

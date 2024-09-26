@@ -25,6 +25,7 @@ const HomeScreen = () => {
 
   const handleSettingsPress = () => {
     console.log("Settings button pressed");
+    navigation.navigate('Settings');
   };
   
 
