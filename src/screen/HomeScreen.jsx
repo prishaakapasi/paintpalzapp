@@ -23,27 +23,32 @@ const HomeScreen = () => {
     navigation.navigate('Drawing'); // Navigate to the DrawingScreen
   };
 
-  const handleSettingsPress = () => {
-    console.log("Settings button pressed");
-    navigation.navigate('Settings'); // Navigate to the Settings screen
-  };
-
   const [headerText, setHeaderText] = useState('0'); // State for the header text
 
   return (
     <View style={styles.container}>
-      <Header text={headerText} onSettingsPress={handleSettingsPress} />
+      {/* Pass the onSettingsPress prop correctly */}
+      <Header 
+        text={headerText}
+        onSettingsPress={() => navigation.navigate('Settings')} 
+        iconColor="#213D61" // Set icon color to white
+        textColor="#213D61" // Set text color to white
+      />
+      
       <View style={styles.avatarscreen}>
         <Image source={require("../screen/assets/avatar.png")} style={styles.avatar} />
       </View>
+      
       <View style={styles.buttonsContainer}>
         <TouchableOpacity style={[styles.button, styles.galleryButton]} onPress={handleGalleryPress}>
           <Image source={require("../screen/assets/gallery.png")} style={styles.gallery} />
         </TouchableOpacity>
+        
         <TouchableOpacity style={[styles.button, styles.paintByNumbersButton]} onPress={handlePaintByNumbersPress}>
           <Image source={require("../screen/assets/paintbynumbers.png")} style={styles.paintbynumbers} />
         </TouchableOpacity>
       </View>
+      
       <View style={styles.drawingContainer}>
         <TouchableOpacity style={styles.drawingbutton} onPress={handleDrawingPress}>
           <Image source={require("../screen/assets/drawing.png")} style={styles.drawing} />
@@ -53,6 +58,7 @@ const HomeScreen = () => {
   );
 };
 
+// Define styles
 const stylesPhone = StyleSheet.create({
   container: {
     backgroundColor: "#FFFFFF",
@@ -118,6 +124,14 @@ const stylesLargeScreen = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    zIndex: 1000, // Ensure it's on top of other components
+  },
   avatarscreen: {
     marginTop: '15%',
     marginVertical: 40,
@@ -170,6 +184,7 @@ const stylesLargeScreen = StyleSheet.create({
   },
 });
 
+// Choose styles based on screen size
 const styles = isLargeScreen ? stylesLargeScreen : stylesPhone;
 
 export default HomeScreen;

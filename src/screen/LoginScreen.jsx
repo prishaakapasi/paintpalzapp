@@ -1,164 +1,121 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, Image, Dimensions, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../../lib/supabase';
 
-const Account = ({ session }) => {
-  const [loading, setLoading] = useState(true);
-  const [username, setUsername] = useState('');
-  const [avatar_url, setAvatarUrl] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
+const { width } = Dimensions.get('window');
+const isLargeScreen = width > 600;
+
+const LoginScreen = () => {
+  const navigation = useNavigation();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false); // State to manage loading
 
   useEffect(() => {
-    let ignore = false;
-
-    async function getProfile() {
-      setLoading(true);
-
-      if (!session || !session.user) {
-        setErrorMessage("User is not authenticated.");
-        setLoading(false);
-        return;
-      }
-
-      const { user } = session;
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .select(`username, avatar_url`)
-        .eq('id', user.id)
-        .single();
-
-      if (!ignore) {
-        if (error) {
-          console.warn(error);
-          setErrorMessage("Failed to fetch profile.");
-        } else if (data) {
-          setUsername(data.username);
-          setAvatarUrl(data.avatar_url);
+    const initializeHeaderText = async () => {
+      try {
+        const storedText = await AsyncStorage.getItem('headerText');
+        if (storedText === null) {
+          await AsyncStorage.setItem('headerText', '0'); // Initial value
         }
+      } catch (error) {
+        console.error('Error initializing headerText:', error);
+        Alert.alert('Error', 'Failed to initialize header text');
       }
-
-      setLoading(false);
-    }
-
-    getProfile();
-
-    return () => {
-      ignore = true;
     };
-  }, [session]);
 
-  async function updateProfile(event) {
-    event.preventDefault();
+    initializeHeaderText();
+  }, []);
 
-    setLoading(true);
-    if (!session || !session.user) {
-      setErrorMessage("User is not authenticated.");
-      setLoading(false);
+  const handleSignIn = async () => {
+    if (!validateEmail(email)) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
 
-    const { user } = session;
+    setLoading(true); // Start loading
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
 
-    const updates = {
-      id: user.id,
-      username,
-      avatar_url,
-      updated_at: new Date(),
-    };
+      if (error) throw error;
 
-    const { error } = await supabase.from('profiles').upsert(updates);
-
-    if (error) {
-      setErrorMessage(error.message);
-      setSuccessMessage(null);
-    } else {
-      setSuccessMessage('Profile updated successfully!');
-      setErrorMessage(null);
+      console.log('Sign In successful');
+      navigation.navigate('Home');
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    } finally {
+      setLoading(false); // Stop loading
     }
-    setLoading(false);
-  }
+  };
 
-  async function changePassword() {
-    setLoading(true);
-    if (newPassword !== confirmPassword) {
-      setErrorMessage("Passwords do not match.");
-      setLoading(false);
-      return;
-    }
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
+  const handleForgotPassword = () => {
+    console.log('Forgot Password pressed');
+    navigation.navigate('Forgot Password');
+  };
 
-    if (error) {
-      setErrorMessage(error.message);
-      setSuccessMessage(null);
-    } else {
-      setSuccessMessage('Password changed successfully!');
-      setErrorMessage(null);
-      setNewPassword('');
-      setConfirmPassword('');
-    }
-    setLoading(false);
-  }
+  const handleCreateAccount = () => {
+    navigation.navigate('Sign Up');
+  };
 
   return (
     <View style={styles.container}>
-      {loading && <ActivityIndicator size="large" color="#FFFFFF" />}
-      {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
-      {successMessage && <Text style={styles.successText}>{successMessage}</Text>}
-
-      <Text style={styles.text}>UPDATE YOUR PROFILE</Text>
-
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.textInput}
-          placeholder='USERNAME'
-          value={username}
-          onChangeText={setUsername}
-        />
+      <View style={styles.paintPalzLogoContainer}>
+        <Image source={require("../screen/assets/paintpalzlogo.png")} style={styles.logo} />
       </View>
-
-      <Text style={styles.text}>CHANGE PASSWORD</Text>
-      
-      <View style={styles.inputContainer}>
+      <View style={styles.textContainer}> 
+        <Text style={styles.text}>SIGN IN TO YOUR ACCOUNT</Text>
+      </View>
+      <View style={styles.inputContainer}> 
         <TextInput
           style={styles.textInput}
-          placeholder='NEW PASSWORD'
+          placeholder='EMAIL'
+          keyboardType='email-address'
+          autoCapitalize='none'
+          value={email}
+          onChangeText={setEmail}
+        />
+      </View> 
+      <View style={styles.inputContainer}> 
+        <TextInput
+          style={styles.textInput}
+          placeholder='PASSWORD'
           secureTextEntry
-          value={newPassword}
-          onChangeText={setNewPassword}
+          value={password}
+          onChangeText={setPassword}
         />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.textInput}
-          placeholder='CONFIRM PASSWORD'
-          secureTextEntry
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-        />
-      </View>
-
-      <TouchableOpacity style={styles.updateButton} onPress={changePassword} disabled={loading}>
+      </View> 
+      <TouchableOpacity onPress={handleForgotPassword}>
+        <Text style={styles.forgotPasswordText}>Forgot your password?</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.signInButton} onPress={handleSignIn} disabled={loading}> 
         {loading ? (
-          <ActivityIndicator size="small" color="#213D61" />
+          <ActivityIndicator size="small" color="#213D61" /> // Loading indicator
         ) : (
-          <Text style={styles.updateButtonText}>CHANGE PASSWORD</Text>
+          <Text style={styles.signInButtonText}>SIGN IN</Text>
         )}
       </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => supabase.auth.signOut()} style={styles.signOutButton}>
-        <Text style={styles.signOutButtonText}>SIGN OUT</Text>
-      </TouchableOpacity>
+      <View style={styles.createAccountContainer}>
+        <Text style={styles.createAccountText}>Don't have an account? </Text>
+        <TouchableOpacity onPress={handleCreateAccount}>
+          <Text style={styles.createLinkText}>Create</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
-export default Account;
+export default LoginScreen;
+
 
 const styles = StyleSheet.create({
   container: {
@@ -166,56 +123,74 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    padding: 20,
+  },
+  paintPalzLogoContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: isLargeScreen ? 200 : 150,
+    width: '100%',
+    marginTop: isLargeScreen ? '25%' : '35%',
+  },
+  logo: {
+    width: isLargeScreen ? 500 : 300,
+    height: isLargeScreen ? 500 : 300,
+    resizeMode: 'contain',
+  },
+  textContainer: {
+    marginTop: isLargeScreen ? '15%' : '20%',
   },
   text: {
     color: '#FFFFFF',
-    fontSize: 25,
-    fontWeight: "bold",
-    marginTop: '10%',
-    marginBottom: '5%',
+    fontSize: isLargeScreen ? 30 : 25,
+    fontWeight: "bold", 
   },
   inputContainer: {
     backgroundColor: "#FFFFFF",
+    flexDirection: "row",
     borderRadius: 20,
     width: '70%',
-    marginVertical: '5%',
+    marginHorizontal: 40,
     height: '6%',
-    justifyContent: 'center',
+    marginTop: '6%',
+    alignItems: 'center',
   },
   textInput: {
     flex: 1,
     marginLeft: '5%',
     marginRight: '5%',
-    fontSize: 17,
+    fontSize: isLargeScreen ? 22 : 17,
   },
-  updateButton: {
+  forgotPasswordText: {
+    color: "#B5C9E3",
+    textAlign: "right", 
+    width: '70%',
+    fontSize: isLargeScreen ? 15 : 12,
+    marginTop: '2%',
+    textDecorationLine: 'underline',  // Adds underline to make it look like a link
+  },
+  signInButton: {
     backgroundColor: "#FFFFFF",
     paddingVertical: '3%',
+    paddingHorizontal: '5%',
+    marginTop: '10%',
     borderRadius: 20,
     alignItems: 'center',
-    width: '70%',
-    marginTop: '10%',
   },
-  updateButtonText: {
+  signInButtonText: {
     color: "#213D61",
-    fontSize: 22,
+    fontSize: isLargeScreen ? 30 : 25,
     fontWeight: "bold",
   },
-  signOutButton: {
+  createAccountContainer: {
+    flexDirection: 'row',
     marginTop: '10%',
   },
-  signOutButtonText: {
-    color: "#F8EC3B",
-    textDecorationLine: 'underline',
-    fontSize: 15,
+  createAccountText: {
+    color: "#FFFFFF",
   },
-  errorText: {
-    color: 'red',
-    marginBottom: 10,
-  },
-  successText: {
-    color: 'green',
-    marginBottom: 10,
+  createLinkText: {
+    color: "#F8EC3B",  
+    textDecorationLine: 'underline', 
+    fontSize: isLargeScreen ? 20 : 15,
   },
 });

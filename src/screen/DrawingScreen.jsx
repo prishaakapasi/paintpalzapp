@@ -562,7 +562,7 @@ const DrawingScreen = () => {
       </View>
       <Header 
         text={headerText}
-        onSettingsPress={() => console.log('Settings Pressed')}
+        onSettingsPress={() => navigation.navigate('Settings')} 
         iconColor="#FFFFFF" // Set icon color to white
         textColor="#FFFFFF" // Set text color to white
       />
