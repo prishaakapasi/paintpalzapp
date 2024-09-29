@@ -9,6 +9,7 @@ import DrawingScreen from './src/screen/DrawingScreen';
 import GalleryScreen from './src/screen/GalleryScreen';
 import ForgotPasswordScreen from './src/screen/ForgotPasswordScreen';
 import SettingsScreen from './src/screen/SettingsScreen';
+import PaintByNumbers from './src/screen/PaintByNumbers';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,6 +24,7 @@ const App = () => {
         <Stack.Screen name="Gallery" component={GalleryScreen} />
         <Stack.Screen name="Forgot Password" component={ForgotPasswordScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="Paint by Numbers" component={PaintByNumbers} />
        
        
       </Stack.Navigator>

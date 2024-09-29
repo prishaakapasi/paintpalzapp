@@ -16,6 +16,7 @@ const HomeScreen = () => {
 
   const handlePaintByNumbersPress = () => {
     console.log("Paint by Numbers button pressed");
+    navigation.navigate('Paint by Numbers');
   };
 
   const handleDrawingPress = () => {
