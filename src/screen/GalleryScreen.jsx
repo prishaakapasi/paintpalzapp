@@ -91,7 +91,7 @@ const GalleryScreen = () => {
         </TouchableOpacity>
       </View>
       <Header 
-        onSettingsPress={() => console.log('Settings Pressed')}
+        onSettingsPress={() => navigation.navigate('Settings')} // Navigate to Settings on press
         iconColor="#FFFFFF"
         textColor="#FFFFFF"
       />
@@ -105,10 +105,10 @@ const GalleryScreen = () => {
         style={[styles.flatList, { marginTop: screenHeight * 0.1 }]}
       />
       {selectedImage && (
-    <Modal
-    visible={modalVisible}
-    transparent={true}
-    onRequestClose={() => setModalVisible(false)}
+        <Modal
+          visible={modalVisible}
+          transparent={true}
+          onRequestClose={() => setModalVisible(false)}
         >
           <View style={styles.modalContainer}>
             <Image source={{ uri: selectedImage }} style={styles.fullScreenImage} />

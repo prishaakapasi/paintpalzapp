@@ -25,20 +25,22 @@ const Header = ({ onSettingsPress, iconColor = '#000000', textColor = '#000000' 
 
   return (
     <View style={styles.headerContainer}>
-      <TouchableOpacity
-        style={styles.touchable}
-        onPress={onSettingsPress}
-      >
-        <Image source={require("../screen/assets/settings.png")} style={[styles.setting, { tintColor: iconColor }]} />
+      <TouchableOpacity style={styles.touchable} onPress={onSettingsPress}>
+        <Image 
+          source={require("../screen/assets/settings.png")} 
+          style={[styles.setting, { tintColor: iconColor }]} 
+        />
       </TouchableOpacity>
       <View style={styles.headerContent}>
         <Text style={[styles.headerText, { color: textColor }]}>{headerText}</Text>
-        <Image source={require("../screen/assets/toll.png")} style={[styles.coins, { tintColor: iconColor }]} />
+        <Image 
+          source={require("../screen/assets/toll.png")} 
+          style={[styles.coins, { tintColor: iconColor }]} 
+        />
       </View>
     </View>
   );
 };
-
 
 const stylesPhone = StyleSheet.create({
   headerContainer: {
@@ -69,7 +71,7 @@ const stylesPhone = StyleSheet.create({
   },
   touchable: {
     padding: 10, // Added padding to ensure touch area
-    backgroundColor: 'rgba(0,0,0,0)', // Transparent background for debugging
+    backgroundColor: 'transparent', // Transparent background for touch area
   },
 });
 
@@ -102,7 +104,7 @@ const stylesLargeScreen = StyleSheet.create({
   },
   touchable: {
     padding: 10, // Added padding to ensure touch area
-    backgroundColor: 'rgba(0,0,0,0)', // Transparent background for debugging
+    backgroundColor: 'transparent', // Transparent background for touch area
   },
 });
 

@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { Settings, StyleSheet, View } from 'react-native';
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -8,6 +8,7 @@ import HomeScreen from './src/screen/HomeScreen';
 import DrawingScreen from './src/screen/DrawingScreen';
 import GalleryScreen from './src/screen/GalleryScreen';
 import ForgotPasswordScreen from './src/screen/ForgotPasswordScreen';
+import SettingsScreen from './src/screen/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +22,9 @@ const App = () => {
         <Stack.Screen name="Drawing" component={DrawingScreen} />
         <Stack.Screen name="Gallery" component={GalleryScreen} />
         <Stack.Screen name="Forgot Password" component={ForgotPasswordScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
+       
+       
       </Stack.Navigator>
     </NavigationContainer>
   );
