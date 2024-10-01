@@ -28,7 +28,6 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Pass the onSettingsPress prop correctly */}
       <Header 
         text={headerText}
         onSettingsPress={() => navigation.navigate('Settings')} 
@@ -41,18 +40,18 @@ const HomeScreen = () => {
       </View>
       
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={[styles.button, styles.galleryButton]} onPress={handleGalleryPress}>
-          <Image source={require("../screen/assets/gallery.png")} style={styles.gallery} />
+        <TouchableOpacity style={styles.button} onPress={handleGalleryPress}>
+          <Image source={require("../screen/assets/gallery.png")} style={styles.buttonImage} />
         </TouchableOpacity>
         
         <TouchableOpacity style={[styles.button, styles.paintByNumbersButton]} onPress={handlePaintByNumbersPress}>
-          <Image source={require("../screen/assets/paintbynumbers.png")} style={styles.paintbynumbers} />
+          <Image source={require("../screen/assets/paintbynumbers.png")} style={styles.buttonImage} />
         </TouchableOpacity>
       </View>
       
       <View style={styles.drawingContainer}>
-        <TouchableOpacity style={styles.drawingbutton} onPress={handleDrawingPress}>
-          <Image source={require("../screen/assets/drawing.png")} style={styles.drawing} />
+        <TouchableOpacity style={styles.button} onPress={handleDrawingPress}>
+          <Image source={require("../screen/assets/drawing.png")} style={styles.buttonImage} />
         </TouchableOpacity>
       </View>
     </View>
@@ -82,39 +81,26 @@ const stylesPhone = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     borderRadius: 20,
-    marginTop: -35,
+    marginTop: -20, // Adjusted to reduce space
   },
   button: {
     width: 400,
     height: 150,
-    marginVertical: 10,
+    marginVertical: 5, // Reduced to bring buttons closer
     borderRadius: 30,
     overflow: 'hidden',
   },
-  gallery: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-  },
-  paintbynumbers: {
+  buttonImage: {
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
   },
   drawingContainer: {
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: -8, // Set to a negative value to bring the button higher
   },
-  drawingbutton: {
-    width: 400,
-    height: 150,
-    borderRadius: 20,
-    overflow: 'hidden',
-  },
-  drawing: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
+  paintByNumbersButton: {
+    height: 180, // Increase height for the Paint by Numbers button
   },
 });
 
@@ -124,14 +110,6 @@ const stylesLargeScreen = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-  },
-  headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    position: 'absolute',
-    top: 40,
-    left: 20,
-    zIndex: 1000, // Ensure it's on top of other components
   },
   avatarscreen: {
     marginTop: '15%',
@@ -155,33 +133,19 @@ const stylesLargeScreen = StyleSheet.create({
     height: width * 0.45,
     marginHorizontal: 8,
   },
-  gallery: {
+  buttonImage: {
     width: '100%',
     height: '100%',
-    marginTop: 20,
     resizeMode: 'contain',
-  },
-  paintbynumbers: {
-    width: '100%',
-    height: '100%',
-    marginTop: 20,
-    resizeMode: 'contain',
-  },
-  drawingbutton: {
-    alignItems: 'center',
-    marginTop: 30,
-  },
-  drawing: {
-    width: width * 0.45,
-    height: width * 0.45,
-    resizeMode: 'contain',
-    paddingBottom: 5,
   },
   drawingContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    marginTop: '5%',
-    paddingBottom: '.5%',
+    marginTop: -15, // Set to a negative value for larger screens
+    paddingBottom: '5%',
+  },
+  paintByNumbersButton: {
+    height: width * 0.5, // Increase height for the Paint by Numbers button in large screens
   },
 });
 
