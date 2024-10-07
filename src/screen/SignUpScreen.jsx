@@ -68,6 +68,8 @@ const SignUpScreen = () => {
       } else {
         Alert.alert('Success', 'Check your email for a confirmation link.');
         navigation.navigate('Login'); // Navigate to Login after successful sign-up
+        await AsyncStorage.setItem('isNewUser', 'true');
+        navigation.navigate('Login');
       }
     } catch (err) {
       console.error('Error during sign-up:', err);

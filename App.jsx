@@ -19,14 +19,13 @@ const App = () => {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Sign Up" component={SignUpScreen} />
+        <Stack.Screen name="Avatar Screen" component={AvatarScreen} /> 
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Drawing" component={DrawingScreen} />
         <Stack.Screen name="Gallery" component={GalleryScreen} />
         <Stack.Screen name="Forgot Password" component={ForgotPasswordScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Paint by Numbers" component={PaintByNumbers} />
-       
-       
       </Stack.Navigator>
     </NavigationContainer>
   );
