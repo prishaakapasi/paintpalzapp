@@ -34,37 +34,25 @@ const LoginScreen = () => {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
-  
+
     setLoading(true); // Start loading
-  
     try {
-      // Sign in with Supabase
       const { error } = await supabase.auth.signInWithPassword({
         email: email,
         password: password,
       });
-  
+
       if (error) throw error;
-  
+
       console.log('Sign In successful');
-  
-      // Check if the user is a new user who hasn't selected their gender yet
-      const isNewUser = await AsyncStorage.getItem('isNewUser'); // Check AsyncStorage for the 'isNewUser' flag
-      
-      if (isNewUser === 'true') {
-        // If they are a new user, navigate to the GenderSelectionScreen
-        navigation.navigate('Avatar Screen');
-      } else {
-        // Otherwise, navigate to the HomeScreen
-        navigation.navigate('Home');
-      }
-  
+      navigation.navigate('Avatar Screen');
     } catch (error) {
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false); // Stop loading
     }
   };
+
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);

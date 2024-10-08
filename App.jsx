@@ -10,6 +10,7 @@ import GalleryScreen from './src/screen/GalleryScreen';
 import ForgotPasswordScreen from './src/screen/ForgotPasswordScreen';
 import SettingsScreen from './src/screen/SettingsScreen';
 import PaintByNumbers from './src/screen/PaintByNumbers';
+import AvatarScreen from './src/screen/AvatarScreen';
 
 const Stack = createNativeStackNavigator();
 
