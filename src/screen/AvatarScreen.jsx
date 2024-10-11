@@ -30,13 +30,13 @@ const AvatarScreen = () => {
 
   // Custom texts for each avatar
   const avatarTexts = [
-    "Heart",
-    "Leg",
-    "Toe",
-    "Hand",
-    "Lung",
-    "Arm",
-    "Ankle",
+    "Auto Immune",
+    "Respiratory",
+    "Cancer",
+    "Neurological",
+    "Metabolic",
+    "Hematological",
+    "Other",
   ];
 
   const handleGenderSelect = (gender) => {
