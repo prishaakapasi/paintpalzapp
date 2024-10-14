@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { AvatarContext } from './AvatarContext';
 
 const AvatarScreen = () => {
-  const [selectedGender, setSelectedGender] = useState('boy');
-  const [selectedAvatar, setSelectedAvatar] = useState(null); // Store selected avatar
+  const { selectedGender, setSelectedGender, selectedAvatar, setSelectedAvatar } = useContext(GlobalStateContext);
   const screenWidth = Dimensions.get('window').width;
+
 
   // Static mappings for boy avatars
   const boyAvatars = [
@@ -30,13 +31,13 @@ const AvatarScreen = () => {
 
   // Custom texts for each avatar
   const avatarTexts = [
-    "Auto Immune",
-    "Respiratory",
-    "Cancer",
-    "Neurological",
-    "Metabolic",
-    "Hematological",
-    "Other",
+    "Respiratory", 
+    "Infections",
+    "Oncological", 
+    "Trauma/Injuries",
+    "Surgical",
+    "Hematological", 
+    "Other", 
   ];
 
   const handleGenderSelect = (gender) => {
@@ -44,14 +45,15 @@ const AvatarScreen = () => {
     setSelectedAvatar(null); // Reset avatar when gender changes
   };
 
-  const handleAvatarSelect = (avatar) => {
-    setSelectedAvatar(avatar);
+  const handleAvatarSelect = (avatar, index) => {
+    setSelectedAvatar({ avatar, index }); // Store avatar and index
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}> 
         <Text style={styles.text}> CREATE AVATAR </Text>
+        <Text style={styles.text2}> Indicate Your Condition to Connect with Others in Similar Situations </Text>
       </View>
       {/* Gender selection buttons */}
       <View style={styles.genderSelectionContainer}>
@@ -79,13 +81,13 @@ const AvatarScreen = () => {
       {selectedGender === 'boy' ? (
         <View style={styles.imageContainer}>
           {boyAvatars.map((avatar, index) => (
-            <TouchableOpacity key={index} onPress={() => handleAvatarSelect(avatar)}>
+            <TouchableOpacity key={index} onPress={() => handleAvatarSelect(avatar, index)}>
               <Image
                 source={avatar}
                 style={[
                   styles.image,
                   { width: screenWidth / 4, height: screenWidth / 4 },
-                  selectedAvatar === avatar ? styles.selectedAvatar : null,
+                  selectedAvatar?.avatar === avatar ? styles.selectedAvatar : null,
                 ]}
               />
               {/* Display custom text below each image */}
@@ -96,13 +98,13 @@ const AvatarScreen = () => {
       ) : selectedGender === 'girl' ? (
         <View style={styles.imageContainer}>
           {girlAvatars.map((avatar, index) => (
-            <TouchableOpacity key={index} onPress={() => handleAvatarSelect(avatar)}>
+            <TouchableOpacity key={index} onPress={() => handleAvatarSelect(avatar, index)}>
               <Image
                 source={avatar}
                 style={[
                   styles.image,
                   { width: screenWidth / 4, height: screenWidth / 4 },
-                  selectedAvatar === avatar ? styles.selectedAvatar : null,
+                  selectedAvatar?.avatar === avatar ? styles.selectedAvatar : null,
                 ]}
               />
               {/* Display custom text below each image */}
@@ -116,7 +118,9 @@ const AvatarScreen = () => {
 
       {/* Display selected avatar message */}
       {selectedAvatar && (
-        <Text style={styles.selectedText}>Selected Avatar: Avatar</Text>
+        <Text style={styles.selectedText}>
+          Selected Avatar: {avatarTexts[selectedAvatar.index]}
+        </Text>
       )}
     </View>
   );

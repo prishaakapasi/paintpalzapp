@@ -11,16 +11,20 @@ import ForgotPasswordScreen from './src/screen/ForgotPasswordScreen';
 import SettingsScreen from './src/screen/SettingsScreen';
 import PaintByNumbers from './src/screen/PaintByNumbers';
 import AvatarScreen from './src/screen/AvatarScreen';
+import { AvatarStateProvider } from './src/screen/AvatarContext';
+import AvatarCustomizationScreen from './src/screen/AvatarCustomizationScreen';
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
+    <AvatarStateProvider>
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Sign Up" component={SignUpScreen} />
         <Stack.Screen name="Avatar Screen" component={AvatarScreen} /> 
+        <Stack.Screen name="Avatar Customization Screen" component={AvatarCustomizationScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Drawing" component={DrawingScreen} />
         <Stack.Screen name="Gallery" component={GalleryScreen} />
@@ -29,6 +33,7 @@ const App = () => {
         <Stack.Screen name="Paint by Numbers" component={PaintByNumbers} />
       </Stack.Navigator>
     </NavigationContainer>
+    </AvatarStateProvider>
   );
 };
 
