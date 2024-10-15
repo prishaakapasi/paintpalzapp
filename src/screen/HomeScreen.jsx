@@ -27,7 +27,7 @@ const HomeScreen = () => {
   const [headerText, setHeaderText] = useState('0'); // State for the header text
 
   return (
-    <View style={styles.container}>
+    <View style={isLargeScreen ? stylesLargeScreen.container : stylesPhone.container}>
       <Header 
         text={headerText}
         onSettingsPress={() => navigation.navigate('Settings')} 
@@ -35,30 +35,30 @@ const HomeScreen = () => {
         textColor="#213D61" // Set text color to white
       />
       
-      <View style={styles.avatarscreen}>
-        <Image source={require("../screen/assets/avatar.png")} style={styles.avatar} />
+      <View style={isLargeScreen ? stylesLargeScreen.avatarscreen : stylesPhone.avatarscreen}>
+        <Image source={require("../screen/assets/avatar.png")} style={isLargeScreen ? stylesLargeScreen.avatar : stylesPhone.avatar} />
       </View>
       
-      <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleGalleryPress}>
-          <Image source={require("../screen/assets/gallery.png")} style={styles.buttonImage} />
+      <View style={isLargeScreen ? stylesLargeScreen.buttonsContainer : stylesPhone.buttonsContainer}>
+        <TouchableOpacity style={isLargeScreen ? stylesLargeScreen.button : stylesPhone.button} onPress={handleGalleryPress}>
+          <Image source={require("../screen/assets/gallery.png")} style={isLargeScreen ? stylesLargeScreen.buttonImage : stylesPhone.buttonImage} />
         </TouchableOpacity>
         
-        <TouchableOpacity style={[styles.button, styles.paintByNumbersButton]} onPress={handlePaintByNumbersPress}>
-          <Image source={require("../screen/assets/paintbynumbers.png")} style={styles.buttonImage} />
+        <TouchableOpacity style={isLargeScreen ? stylesLargeScreen.paintByNumbersButton : stylesPhone.paintByNumbersButton} onPress={handlePaintByNumbersPress}>
+          <Image source={require("../screen/assets/paintbynumbers.png")} style={isLargeScreen ? stylesLargeScreen.buttonImage : stylesPhone.buttonImage} />
         </TouchableOpacity>
       </View>
       
-      <View style={styles.drawingContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleDrawingPress}>
-          <Image source={require("../screen/assets/drawing.png")} style={styles.buttonImage} />
+      <View style={isLargeScreen ? stylesLargeScreen.drawingContainer : stylesPhone.drawingContainer}>
+        <TouchableOpacity style={isLargeScreen ? stylesLargeScreen.button : stylesPhone.button} onPress={handleDrawingPress}>
+          <Image source={require("../screen/assets/drawing.png")} style={isLargeScreen ? stylesLargeScreen.buttonImage : stylesPhone.buttonImage} />
         </TouchableOpacity>
       </View>
     </View>
   );
 };
 
-// Define styles
+// Phone styles
 const stylesPhone = StyleSheet.create({
   container: {
     backgroundColor: "#FFFFFF",
@@ -90,6 +90,13 @@ const stylesPhone = StyleSheet.create({
     borderRadius: 30,
     overflow: 'hidden',
   },
+  paintByNumbersButton: {
+    width: 550,
+    height: 160, // Slightly taller than the other buttons
+    marginVertical: 5, // Keep margins consistent
+    borderRadius: 30,
+    overflow: 'hidden',
+  },
   buttonImage: {
     width: '100%',
     height: '100%',
@@ -99,11 +106,9 @@ const stylesPhone = StyleSheet.create({
     alignItems: 'center',
     marginTop: -8, // Set to a negative value to bring the button higher
   },
-  paintByNumbersButton: {
-    height: 180, // Increase height for the Paint by Numbers button
-  },
 });
 
+// iPad styles
 const stylesLargeScreen = StyleSheet.create({
   container: {
     backgroundColor: "#FFFFFF",
@@ -129,27 +134,26 @@ const stylesLargeScreen = StyleSheet.create({
     paddingHorizontal: 30,
   },
   button: {
-    width: width * 0.45,
-    height: width * 0.45,
+    width: width * 0.45, // Same width as the other buttons
+    height: width * 0.45, // Same height as the other buttons
+    marginHorizontal: 8,
+  },
+  paintByNumbersButton: {
+    width: 375, // Same width as the other buttons
+    height: width * 0.46, // Slightly taller than the other buttons
     marginHorizontal: 8,
   },
   buttonImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain',
+    resizeMode: 'contain', // Ensure the image is centered and not stretched
   },
   drawingContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    marginTop: -15, // Set to a negative value for larger screens
-    paddingBottom: '5%',
-  },
-  paintByNumbersButton: {
-    height: width * 0.5, // Increase height for the Paint by Numbers button in large screens
+    marginTop: 15, // Set to a negative value for larger screens
+    paddingBottom: '2%',
   },
 });
-
-// Choose styles based on screen size
-const styles = isLargeScreen ? stylesLargeScreen : stylesPhone;
 
 export default HomeScreen;
