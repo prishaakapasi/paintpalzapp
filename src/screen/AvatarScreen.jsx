@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { AvatarContext } from './AvatarContext';
 import { useNavigation } from '@react-navigation/native';
@@ -6,9 +6,13 @@ import { useNavigation } from '@react-navigation/native';
 const AvatarScreen = () => {
   const { selectedGender, setSelectedGender, selectedAvatar, setSelectedAvatar } = useContext(AvatarContext);
   const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-  const navigation = useNavigation(); 
+  const navigation = useNavigation();
+
+  // Local state for selected condition, separate from global avatar state
+  const [localSelectedCondition, setLocalSelectedCondition] = useState(null);
 
   const handleSelect = () => {
+    // Ensure both an avatar and condition are selected before navigating
     if (selectedAvatar) {
       navigation.navigate('Avatar Customization Screen');
     } else {
@@ -51,11 +55,14 @@ const AvatarScreen = () => {
 
   const handleGenderSelect = (gender) => {
     setSelectedGender(gender);
-    setSelectedAvatar(null);
+    setSelectedAvatar(null);  // Reset the global avatar selection when gender changes
+    setLocalSelectedCondition(null); // Reset the local condition selection when gender changes
   };
 
+  // Handle avatar selection, update both global avatar state and local condition
   const handleAvatarSelect = (avatar, index) => {
-    setSelectedAvatar(avatar);
+    setSelectedAvatar(avatar);  // Update the global avatar state
+    setLocalSelectedCondition(avatarTexts[index]); // Update local condition
   };
 
   const renderAvatars = (avatars) => {
@@ -66,7 +73,7 @@ const AvatarScreen = () => {
           style={[
             styles.image,
             { width: screenWidth / 4, height: screenWidth / 4 },
-            selectedAvatar?.index === index ? styles.selectedAvatar : null,
+            selectedAvatar === avatar ? styles.selectedAvatar : null,
           ]}
         />
         <Text style={styles.avatarText}>{avatarTexts[index]}</Text>
@@ -116,9 +123,9 @@ const AvatarScreen = () => {
         <Text style={styles.placeholderText}>Please select a gender to see images.</Text>
       )}
 
-      {selectedAvatar && (
+      {localSelectedCondition && (
         <Text style={styles.selectedText}>
-          Selected Avatar: {avatarTexts[selectedAvatar.index]}
+          Selected Condition: {localSelectedCondition}
         </Text>
       )}
       <TouchableOpacity style={styles.selectButton} onPress={handleSelect}>
@@ -198,7 +205,7 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   selectedAvatar: {
-    borderColor: '#213D61', 
+    borderColor: '#213D61',
   },
   avatarText: {
     textAlign: 'center',
