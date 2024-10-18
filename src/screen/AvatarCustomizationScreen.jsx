@@ -1,14 +1,11 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions } from 'react-native';
-import { AvatarContext } from './AvatarContext';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../../lib/supabase';
 
-
 const avatarImages = {
-    boy: [
-      [
+    boy: {
+      'boyavatars-01.png': [
         require('../screen/avatars/boyavatars-08.png'),
         require('../screen/avatars/boyavatars-15.png'),
         require('../screen/avatars/boyavatars-22.png'),
@@ -16,9 +13,9 @@ const avatarImages = {
         require('../screen/avatars/boyavatars-36.png'),
         require('../screen/avatars/boyavatars-43.png'),
         require('../screen/avatars/boyavatars-50.png'),
-        require('../screen/avatars/boyavatars-57.png'), 
+        require('../screen/avatars/boyavatars-57.png'),
       ],
-      [
+      'boyavatars-02.png': [
         require('../screen/avatars/boyavatars-09.png'),
         require('../screen/avatars/boyavatars-16.png'),
         require('../screen/avatars/boyavatars-23.png'),
@@ -28,7 +25,7 @@ const avatarImages = {
         require('../screen/avatars/boyavatars-51.png'),
         require('../screen/avatars/boyavatars-58.png'),
       ],
-      [
+      'boyavatars-03.png': [
         require('../screen/avatars/boyavatars-10.png'),
         require('../screen/avatars/boyavatars-17.png'),
         require('../screen/avatars/boyavatars-24.png'),
@@ -38,7 +35,7 @@ const avatarImages = {
         require('../screen/avatars/boyavatars-52.png'),
         require('../screen/avatars/boyavatars-59.png'),
       ],
-      [
+      'boyavatars-04.png': [
         require('../screen/avatars/boyavatars-11.png'),
         require('../screen/avatars/boyavatars-18.png'),
         require('../screen/avatars/boyavatars-25.png'),
@@ -48,7 +45,7 @@ const avatarImages = {
         require('../screen/avatars/boyavatars-53.png'),
         require('../screen/avatars/boyavatars-60.png'),
       ],
-      [
+      'boyavatars-05.png': [
         require('../screen/avatars/boyavatars-12.png'),
         require('../screen/avatars/boyavatars-19.png'),
         require('../screen/avatars/boyavatars-26.png'),
@@ -58,7 +55,7 @@ const avatarImages = {
         require('../screen/avatars/boyavatars-54.png'),
         require('../screen/avatars/boyavatars-61.png'),
       ],
-      [
+      'boyavatars-06.png': [
         require('../screen/avatars/boyavatars-13.png'),
         require('../screen/avatars/boyavatars-20.png'),
         require('../screen/avatars/boyavatars-27.png'),
@@ -68,7 +65,7 @@ const avatarImages = {
         require('../screen/avatars/boyavatars-55.png'),
         require('../screen/avatars/boyavatars-62.png'),
       ],
-      [
+      'boyavatars-07.png': [
         require('../screen/avatars/boyavatars-14.png'),
         require('../screen/avatars/boyavatars-21.png'),
         require('../screen/avatars/boyavatars-28.png'),
@@ -78,9 +75,9 @@ const avatarImages = {
         require('../screen/avatars/boyavatars-56.png'),
         require('../screen/avatars/boyavatars-63.png'),
       ],
-    ],
-    girl: [
-      [
+    },
+    girl: {
+      'avatargirls-01.png': [
         require('../screen/avatars/avatargirls-08.png'),
         require('../screen/avatars/avatargirls-15.png'),
         require('../screen/avatars/avatargirls-22.png'),
@@ -90,7 +87,7 @@ const avatarImages = {
         require('../screen/avatars/avatargirls-50.png'),
         require('../screen/avatars/avatargirls-57.png'),
       ],
-      [
+      'avatargirls-02.png': [
         require('../screen/avatars/avatargirls-09.png'),
         require('../screen/avatars/avatargirls-16.png'),
         require('../screen/avatars/avatargirls-23.png'),
@@ -100,7 +97,7 @@ const avatarImages = {
         require('../screen/avatars/avatargirls-51.png'),
         require('../screen/avatars/avatargirls-58.png'),
       ],
-      [
+      'avatargirls-03.png': [
         require('../screen/avatars/avatargirls-10.png'),
         require('../screen/avatars/avatargirls-17.png'),
         require('../screen/avatars/avatargirls-24.png'),
@@ -110,7 +107,7 @@ const avatarImages = {
         require('../screen/avatars/avatargirls-52.png'),
         require('../screen/avatars/avatargirls-59.png'),
       ],
-      [
+      'avatargirls-04.png': [
         require('../screen/avatars/avatargirls-11.png'),
         require('../screen/avatars/avatargirls-18.png'),
         require('../screen/avatars/avatargirls-25.png'),
@@ -120,7 +117,7 @@ const avatarImages = {
         require('../screen/avatars/avatargirls-53.png'),
         require('../screen/avatars/avatargirls-60.png'),
       ],
-      [
+      'avatargirls-05.png': [
         require('../screen/avatars/avatargirls-12.png'),
         require('../screen/avatars/avatargirls-19.png'),
         require('../screen/avatars/avatargirls-26.png'),
@@ -130,7 +127,7 @@ const avatarImages = {
         require('../screen/avatars/avatargirls-54.png'),
         require('../screen/avatars/avatargirls-61.png'),
       ],
-      [
+      'avatargirls-06.png': [
         require('../screen/avatars/avatargirls-13.png'),
         require('../screen/avatars/avatargirls-20.png'),
         require('../screen/avatars/avatargirls-27.png'),
@@ -140,7 +137,7 @@ const avatarImages = {
         require('../screen/avatars/avatargirls-55.png'),
         require('../screen/avatars/avatargirls-62.png'),
       ],
-      [
+      'avatargirls-07.png': [
         require('../screen/avatars/avatargirls-14.png'),
         require('../screen/avatars/avatargirls-21.png'),
         require('../screen/avatars/avatargirls-28.png'),
@@ -150,59 +147,140 @@ const avatarImages = {
         require('../screen/avatars/avatargirls-56.png'),
         require('../screen/avatars/avatargirls-63.png'),
       ],
-      
-    ],
-    
+    },
   };
-  
-  
-  const avatarLabels = {
-      boy: [
-        "HAIRBAND $150",
-        "BOW $5000",
-        "HAT $4000",
-        "CAP $5600",
-        "SUNGLASSES $1000",
-        "EARRINGS $900",
-        "STAR SHIRT $8000",
-        "    HAIRBAND $7500",
-      ],
-      girl: [
-        "HAIRBAND $150",
-        "BOW $5000",
-        "HAT $4000",
-        "CAP $5600",
-        "SUNGLASSES $1000",
-        "EARRINGS $900",
-        "STAR SHIRT $8000",
-        "    HAIRBAND $7500",
-      ],
-    };
 
-const AvatarCustomizationScreen = () => {
-
+  const AvatarCustomizationScreen = () => {
     const [userID, setUserId] = useState(null);
-
-
+    const [avatarURL, setAvatarURL] = useState('');
+    const [avatarArray, setAvatarArray] = useState([]);
+    const [avatarType, setAvatarType] = useState('girl');
+  
     useEffect(() => {
-    const getUserId = async () => {
-      try {
-        const storedUserId = await AsyncStorage.getItem('userID');
-        if (storedUserId) {
-          setUserId(storedUserId);
+      const getUserId = async () => {
+        try {
+          const storedUserId = await AsyncStorage.getItem('userID');
+          if (storedUserId) {
+            setUserId(storedUserId);
+            await fetchAvatarUrl(storedUserId);
+          }
+        } catch (error) {
+          console.error('Failed to load user ID', error);
         }
-      } catch (error) {
-        console.error('Failed to load user ID', error);
+      };
+  
+      getUserId();
+  
+      return () => {
+        setUserId(null);
+        setAvatarArray([]);
+        setAvatarType('');
+      };
+    }, []);
+  
+    const fetchAvatarUrl = async (userId) => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('avatar_url')
+        .eq('id', userId)
+        .single();
+  
+      if (error) {
+        console.error('Error fetching avatar URL:', error);
+        return;
+      }
+  
+      if (data) {
+        setAvatarURL(data.avatar_url);
+      } else {
+        console.warn('No data found for user ID:', userId);
       }
     };
-
-    getUserId();
-
-    return () => {
-      setUserId(null);
+  
+    const getAvatarImages = () => {
+        if (avatarURL) {
+            console.log('Checking avatarURL:', avatarURL);
+            
+            // Check if the avatarURL matches the pattern for boys or girls
+            const avatarKeyMatch = avatarURL.match(/(boyavatars|avatargirls)-\d+\.png/);
+            console.log('Match result:', avatarKeyMatch);
+            
+            if (avatarKeyMatch) {
+                const avatarKey = avatarKeyMatch[0]; // Extract the matched key
+                console.log('Found avatar key:', avatarKey);
+                
+                // Determine the avatar type based on the avatar key
+                let avatarType;
+                if (avatarKey.startsWith('boyavatars')) {
+                    avatarType = 'boy';
+                } else if (avatarKey.startsWith('avatargirls')) {
+                    avatarType = 'girl';
+                }
+                console.log('Current avatarType:', avatarType);
+                console.log('Avatar Images Object:', avatarImages); // Log the object
+                
+                // Get the found images from the corresponding avatar type
+                const foundImages = avatarImages[avatarType]?.[avatarKey];
+                
+                if (foundImages) {
+                    console.log('Found images:', foundImages);
+                    setAvatarArray(foundImages);
+                } else {
+                    console.warn('No images found for the key:', avatarKey);
+                    setAvatarArray([]); // Handle no images case
+                }
+            } else {
+                console.warn('No match found for avatar URL:', avatarURL);
+                setAvatarArray([]); // Handle no match case
+            }
+        } else {
+            console.warn('No avatar URL provided');
+        }
     };
-  }, []);
-
-}
-
-export default AvatarCustomizationScreen;
+    
+      
+    
+    useEffect(() => {
+      getAvatarImages();
+    }, [avatarURL]);
+  
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Choose Your Avatar</Text>
+        {avatarArray.map((image, index) => (
+            <Image key={index} source={image} style={styles.avatarImage} />
+        ))}
+      </View>
+    );
+  };
+  
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: '#fff',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      marginBottom: 20,
+    },
+    avatarContainer: {
+      flexDirection: 'column',
+      alignItems: 'center',
+    },
+    avatarImage: {
+      width: 50,
+      height: 50,
+      marginHorizontal: 5,
+    },
+    selectedAvatarImage: {
+      width: 100,
+      height: 100,
+      marginTop: 20,
+    },
+  });
+  
+  export default AvatarCustomizationScreen;
+  
