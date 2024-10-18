@@ -51,7 +51,7 @@ const LoginScreen = () => {
       console.log('User ID:', userID); // Log the user ID to console
       await AsyncStorage.setItem('userID', userID); // Optionally, store user ID in AsyncStorage
 
-      navigation.navigate('Avatar Screen');
+      navigation.navigate('Home');
     } catch (error) {
       Alert.alert('Error', error.message);
     } finally {

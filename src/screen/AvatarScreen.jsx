@@ -21,6 +21,17 @@ const AvatarScreen = () => {
     require('../screen/avatars/boyavatars-06.png'),
     require('../screen/avatars/boyavatars-07.png'),
   ];
+  
+  // Corresponding captions for boy avatars
+  const boyCaptions = [
+    "Respiratory",
+    "Infections",
+    "Oncological",
+    "Trauma/Injuries",
+    "Surgical",
+    "Hematological",
+    "Other",
+  ];
 
   // Static mappings for girl avatars
   const girlAvatars = [
@@ -31,6 +42,17 @@ const AvatarScreen = () => {
     require('../screen/avatars/avatargirls-05.png'),
     require('../screen/avatars/avatargirls-06.png'),
     require('../screen/avatars/avatargirls-07.png'),
+  ];
+  
+  // Corresponding captions for girl avatars
+  const girlCaptions = [
+    "Respiratory",
+    "Infections",
+    "Oncological",
+    "Trauma/Injuries",
+    "Surgical",
+    "Hematological",
+    "Other",
   ];
 
   useEffect(() => {
@@ -54,23 +76,21 @@ const AvatarScreen = () => {
 
   const handleSelect = async () => {
     if (selectedAvatar) {
-      // Update avatar URL in Supabase
       await handleAvatarSelect(selectedAvatar);
-      navigation.navigate('Avatar Customization Screen');
+      navigation.navigate('Login');
     } else {
       alert('Please select an avatar first!');
     }
   };
 
   const handleAvatarSelect = async (avatar) => {
-    setSelectedAvatar(avatar); // Set the selected avatar directly
-    const avatarSource = Image.resolveAssetSource(avatar).uri; // Get the URI of the selected avatar
+    setSelectedAvatar(avatar);
+    const avatarSource = Image.resolveAssetSource(avatar).uri;
 
-    // Update the avatar_url in the user's profile in Supabase
     const { data, error } = await supabase
       .from('profiles')
-      .update({ avatar_url: avatarSource }) // Update the avatar_url field with the correct URI
-      .eq('id', userID); // Match with the user ID
+      .update({ avatar_url: avatarSource })
+      .eq('id', userID);
 
     if (error) {
       console.error('Error updating avatar URL', error);
@@ -79,21 +99,24 @@ const AvatarScreen = () => {
     }
   };
 
-  const renderAvatars = (avatars) => {
+  const renderAvatars = (avatars, captions) => {
     return avatars.map((avatar, index) => (
-      <TouchableOpacity key={index} onPress={() => handleAvatarSelect(avatar)}>
-        <Image
-          source={avatar} // Use the avatar directly as the source
-          style={[
-            styles.image,
-            { width: screenWidth / 4, height: screenWidth / 4 },
-            selectedAvatar === avatar ? styles.selectedAvatar : null,
-          ]}
-        />
-      </TouchableOpacity>
+      <View key={index} style={styles.avatarContainer}>
+        <TouchableOpacity onPress={() => handleAvatarSelect(avatar)}>
+          <Image
+            source={avatar}
+            style={[
+              styles.image,
+              { width: screenWidth / 4, height: screenWidth / 4 },
+              selectedAvatar === avatar ? styles.selectedAvatar : null,
+            ]}
+          />
+        </TouchableOpacity>
+        <Text style={styles.caption}>{captions[index]}</Text>
+      </View>
     ));
   };
-  
+
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
@@ -124,11 +147,11 @@ const AvatarScreen = () => {
 
       {selectedGender === 'boy' ? (
         <View style={styles.imageContainer}>
-          {renderAvatars(boyAvatars)}
+          {renderAvatars(boyAvatars, boyCaptions)}
         </View>
       ) : selectedGender === 'girl' ? (
         <View style={styles.imageContainer}>
-          {renderAvatars(girlAvatars)}
+          {renderAvatars(girlAvatars, girlCaptions)}
         </View>
       ) : (
         <Text style={styles.placeholderText}>Please select a gender to see images.</Text>
@@ -204,6 +227,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 20,
   },
+  avatarContainer: {
+    alignItems: 'center', // Center align captions under images
+    margin: 10,
+  },
   image: {
     resizeMode: 'contain',
     margin: 10,
@@ -212,6 +239,12 @@ const styles = StyleSheet.create({
   },
   selectedAvatar: {
     borderColor: '#213D61',
+  },
+  caption: {
+    marginTop: 5,
+    color: '#213D61',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   placeholderText: {
     textAlign: 'center',

@@ -81,7 +81,7 @@ const SignUpScreen = () => {
           await AsyncStorage.setItem('userID', user.id);
   
           // Optionally navigate to Login after successful header text initialization
-          navigation.navigate('Login');
+          navigation.navigate('Avatar Screen');
         }
       }
     } catch (err) {

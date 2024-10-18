@@ -13,6 +13,7 @@ import PaintByNumbers from './src/screen/PaintByNumbers';
 import AvatarScreen from './src/screen/AvatarScreen';
 import { AvatarStateProvider } from './src/screen/AvatarContext';
 import AvatarCustomizationScreen from './src/screen/AvatarCustomizationScreen';
+import PublishedArtwork from './src/screen/PublishedArtwork';
 
 const Stack = createNativeStackNavigator();
 
@@ -31,6 +32,7 @@ const App = () => {
         <Stack.Screen name="Forgot Password" component={ForgotPasswordScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Paint by Numbers" component={PaintByNumbers} />
+        <Stack.Screen name="Published Artwork" component={PublishedArtwork} />
       </Stack.Navigator>
     </NavigationContainer>
     </AvatarStateProvider>
