@@ -1,19 +1,45 @@
 import React, { useEffect, useState } from 'react';
 import { View, Image, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from '../../lib/supabase'; 
 
 const { width } = Dimensions.get('window');
 const isLargeScreen = width > 600;
 
 const Header = ({ onSettingsPress, iconColor = '#000000', textColor = '#000000' }) => {
   const [headerText, setHeaderText] = useState('0');
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    const getUserId = async () => {
+      try {
+        const storedUserId = await AsyncStorage.getItem('userID');
+        if (storedUserId) {
+          setUserId(storedUserId);
+        }
+      } catch (error) {
+        console.error('Failed to load user ID', error);
+      }
+    };
+
+    getUserId();
+  }, []);
 
   useEffect(() => {
     const loadHeaderText = async () => {
+      if (!userId) return;
+
       try {
-        const storedText = await AsyncStorage.getItem('headerText');
-        if (storedText) {
-          setHeaderText(storedText);
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('coins')
+          .eq('id', userId)  // Use the userId retrieved from AsyncStorage
+          .single();  
+
+        if (error) {
+          console.error('Failed to load header text', error);
+        } else if (data) {
+          setHeaderText(data.coins);  // Update the headerText with coins value
         }
       } catch (error) {
         console.error('Failed to load header text', error);
@@ -21,7 +47,7 @@ const Header = ({ onSettingsPress, iconColor = '#000000', textColor = '#000000' 
     };
 
     loadHeaderText();
-  }, []);
+  }, [userId]);
 
   return (
     <View style={styles.headerContainer}>
@@ -70,8 +96,8 @@ const stylesPhone = StyleSheet.create({
     resizeMode: 'contain',
   },
   touchable: {
-    padding: 10, // Added padding to ensure touch area
-    backgroundColor: 'transparent', // Transparent background for touch area
+    padding: 10,
+    backgroundColor: 'transparent',
   },
 });
 
@@ -103,8 +129,8 @@ const stylesLargeScreen = StyleSheet.create({
     resizeMode: 'contain',
   },
   touchable: {
-    padding: 10, // Added padding to ensure touch area
-    backgroundColor: 'transparent', // Transparent background for touch area
+    padding: 10,
+    backgroundColor: 'transparent',
   },
 });
 

@@ -2,15 +2,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, TouchableOpacity, Text, Alert, Dimensions, Image } from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
 import { captureRef } from 'react-native-view-shot';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Header from './Header';
 import { useNavigation } from '@react-navigation/native';
+import { supabase } from '../../lib/supabase'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const { width: screenWidth } = Dimensions.get('window'); // Get screen width
 
 const PaintByNumbers = () => {
   const navigation = useNavigation();
-  
+  const [userID, setUserId] = useState(null);
   const NUM_ROWS = 10; // Constant for the number of rows
   const columns = 10; // Number of columns in the grid
   const gridSize = NUM_ROWS * columns; // Total number of cells in the grid
@@ -1905,31 +1907,76 @@ const PaintByNumbers = () => {
     const randomIndex = Math.floor(Math.random() * prompts.length);
     setCurrentPrompt(prompts[randomIndex]);
   };
+  useEffect(() => {
+    const getUserId = async () => {
+      try {
+        const storedUserId = await AsyncStorage.getItem('userID');
+        console.log('Stored User ID:', storedUserId); // Log the retrieved User ID
+        if (storedUserId) {
+          setUserId(storedUserId);
+        }
+      } catch (error) {
+        console.error('Failed to load user ID', error);
+      }
+    };
+
+    getUserId();
+  }, []);
 
   const saveToGallery = async () => {
     if (paintRef.current) {
       try {
+        // Capture the painting as a PNG
         const uri = await captureRef(paintRef, {
           format: 'png',
           quality: 1,
         });
-        
-        // Update gallery images in AsyncStorage
-        const updatedGalleryImages = [...galleryImages, uri];
-        setGalleryImages(updatedGalleryImages);
-        await AsyncStorage.setItem('gallery', JSON.stringify(updatedGalleryImages));
-        
-        Alert.alert('Success', 'Painting saved to App Gallery!');
+  
+        // Log the image data for debugging
+        console.log("Image URI:", uri);
+  
+        // Step 1: Fetch the current coins to increment by 10
+        const { data: userData, error: fetchError } = await supabase
+          .from('profiles')
+          .select('coins') // Get the current coins value
+          .eq('id', userID)
+          .single(); // Get a single user record
+  
+        if (fetchError) {
+          console.error('Error fetching user coins:', fetchError);
+          Alert.alert('Error', 'Failed to fetch user coins.');
+          return; // Exit if there's an error
+        }
+  
+        // Increment coins by 10
+        const newCoinsValue = (userData.coins || 0) + 10;
+  
+        // Step 2: Update the user's painting data and coins in Supabase
+        const { data, error } = await supabase
+          .from('profiles') // Ensure this is the correct table name
+          .update({
+            paint_data: uri, // Store the image data in the paint_data column
+            coins: newCoinsValue // Set the updated coins value
+          })
+          .eq('id', userID); // Ensure userID is valid
+  
+        // Step 3: Handle potential errors or success
+        if (error) {
+          console.error('Error saving image to Supabase:', error);
+          Alert.alert('Error', 'Failed to save the image to Supabase.');
+        } else {
+          console.log('Painting saved successfully:', data);
+          Alert.alert('Success', 'Painting saved and coins updated!');
+        }
+  
       } catch (error) {
         console.error('Error saving image to gallery:', error);
         Alert.alert('Error', 'Failed to save the image to the gallery.');
       }
     }
-    
-    const storedHeaderText = await AsyncStorage.getItem('headerText');
-    const newHeaderText = (parseInt(storedHeaderText) + 10).toString();
-    await AsyncStorage.setItem('headerText', newHeaderText);
   };
+  
+  
 
   const saveToCameraRoll = async () => {
     if (paintRef.current) {

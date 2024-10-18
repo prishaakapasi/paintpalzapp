@@ -4,7 +4,6 @@ import React, { useContext, useState } from 'react';
 import Header from './Header';
 import { useNavigation } from '@react-navigation/native';
 
-// Constants for avatar images based on gender and avatar types
 const avatarImages = {
   boy: [
     [
@@ -157,37 +156,38 @@ const avatarImages = {
 
 const avatarLabels = {
     boy: [
-      "HAIRBAND        $3000",
-      "BOW        $5000",
-      "HAT        $4000",
-      "CAP        $5600",
-      "SUNGLASSES       $1000",
-      "EARRINGS        $900",
-      "STAR SHIRT        $8000",
-      "HAIRBAND        $7500",
+      "HAIRBAND $150",
+      "BOW $5000",
+      "HAT $4000",
+      "CAP $5600",
+      "SUNGLASSES $1000",
+      "EARRINGS $900",
+      "STAR SHIRT $8000",
+      "    HAIRBAND $7500",
     ],
     girl: [
-      "HAIRBAND        $3000",
-      "BOW        $5000",
-      "HAT        $4000",
-      "CAP        $5600",
-      "SUNGLASSES       $1000",
-      "EARRINGS        $900",
-      "STAR SHIRT        $8000",
-      "HAIRBAND        $7500",
+      "HAIRBAND $150",
+      "BOW $5000",
+      "HAT $4000",
+      "CAP $5600",
+      "SUNGLASSES $1000",
+      "EARRINGS $900",
+      "STAR SHIRT $8000",
+      "    HAIRBAND $7500",
     ],
   };
   
   const UserProfileScreen = () => {
-    const { selectedGender, selectedAvatar } = useContext(AvatarContext);
+
+    const { selectedAvatar, selectedGender} = useContext(AvatarContext);
     const screenWidth = Dimensions.get('window').width;
     const navigation = useNavigation();
   
-    const [headerText, setHeaderText] = useState('0'); // User's balance
+    const [headerText, setHeaderText] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [itemPrice, setItemPrice] = useState('');
-    const [hasPurchased, setHasPurchased] = useState(false); // Track if a purchase has been made
+    const [hasPurchased, setHasPurchased] = useState(false);
   
     const getImagesToDisplay = () => {
       const avatarIndex = selectedAvatar.split('-').pop().split('.')[0] - 1;
@@ -204,14 +204,14 @@ const avatarLabels = {
   
     const handleAvatarPress = (item, index) => {
       setSelectedItem(item);
-      setItemPrice(getPriceForLabel(index)); // Set the price based on index
+      setItemPrice(getPriceForLabel(index));
       setModalVisible(true);
     };
   
     const getPriceForLabel = (index) => {
       const labels = getLabelsToDisplay();
       const priceString = labels[index].match(/\$([0-9,]+)/);
-      return priceString ? parseInt(priceString[1].replace(/,/g, '')) : 0; // Return the price as a number
+      return priceString ? parseInt(priceString[1].replace(/,/g, '')) : 0;
     };
   
     const closePurchaseModal = () => {
@@ -220,17 +220,26 @@ const avatarLabels = {
       setItemPrice('');
     };
   
-    const handlePurchase = () => {
-      const balance = parseInt(headerText); // Convert header text to an integer
-      const price = itemPrice;
+    const handlePurchase = async () => {
+      const balance = parseInt(headerText, 10);
+      const price = parseInt(itemPrice, 10);
   
       if (balance < price) {
         Alert.alert("Insufficient Funds", "Create more artwork to raise your funds!!!");
       } else {
-        console.log("Purchase item");
-        setHasPurchased(true); // Update purchase state
-        // Logic to deduct price from balance and proceed with the purchase
-        closePurchaseModal(); // Close the modal after purchase
+        const newBalance = balance - price;
+        setHeaderText(newBalance.toString());
+  
+        // Save the new balance to AsyncStorage
+        try {
+          await AsyncStorage.setItem('headerText', newBalance.toString());
+          console.log('New balance saved to AsyncStorage:', newBalance);
+        } catch (error) {
+          console.error('Failed to save header text', error);
+        }
+  
+        setHasPurchased(true); // Set hasPurchased to true after purchase
+        closePurchaseModal();
       }
     };
   
@@ -238,8 +247,6 @@ const avatarLabels = {
     const labelsToDisplay = getLabelsToDisplay();
   
     // Get the current avatar to display at the top
-    const currentAvatarIndex = selectedAvatar.split('-').pop().split('.')[0] - 1;
-    const currentAvatar = avatarImages[selectedGender][currentAvatarIndex]?.[0]; // Display the first image of the selected avatar
   
     return (
       <View style={styles.container}>
@@ -256,10 +263,8 @@ const avatarLabels = {
             textColor="#FFFFFF"
           />
         </View>
-  
-        {/* Display current avatar at the top only if no purchases have been made */}
-        {!hasPurchased && currentAvatar && (
-          <Image source={currentAvatar} style={styles.currentAvatar} />
+        {selectedAvatar && (
+          <Image source={selectedAvatar} style={styles.currentAvatar} />
         )}
   
         <Text style={styles.text}>AVATAR SHOP</Text>
@@ -280,7 +285,7 @@ const avatarLabels = {
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Purchase Item</Text>
                 <Image source={selectedItem} style={styles.modalImage} />
-                <Text style={styles.priceText}>Price: ${itemPrice}</Text> 
+                <Text style={styles.priceText}>Price: ${itemPrice}</Text>
                 <Button title="Purchase" onPress={handlePurchase} />
                 <Button title="Cancel" onPress={closePurchaseModal} />
               </View>
@@ -290,7 +295,6 @@ const avatarLabels = {
       </View>
     );
   };
-  
   export default UserProfileScreen;
   
   

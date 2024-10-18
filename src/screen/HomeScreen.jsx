@@ -1,14 +1,16 @@
 import { StyleSheet, View, Image, Dimensions, TouchableOpacity } from 'react-native';
-import React, { useState } from 'react';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
+import React, { useState, useContext } from 'react';
+import { useNavigation} from '@react-navigation/native'; // Import useNavigation hook
 import Header from './Header'; // Import the Header component
+import { AvatarContext } from '../screen/AvatarContext';
 
 const { width } = Dimensions.get('window');
 const isLargeScreen = width > 600; // Check if the screen is large (e.g., iPads)
 
 const HomeScreen = () => {
   const navigation = useNavigation(); // Access the navigation object
-
+  
+  const { selectedAvatar } = useContext(AvatarContext);
   const handleGalleryPress = () => {
     console.log("Gallery button pressed");
     navigation.navigate('Gallery');

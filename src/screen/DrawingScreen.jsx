@@ -8,6 +8,7 @@ import Header from './Header';
 import * as MediaLibrary from 'expo-media-library';
 import { captureRef } from 'react-native-view-shot';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from '../../lib/supabase'; 
 
 const { height, width } = Dimensions.get('window');
 
@@ -63,7 +64,7 @@ const DrawingScreen = () => {
   const [showStrokeSizePicker, setShowStrokeSizePicker] = useState(false);
   const [isErasing, setIsErasing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-
+  const [userID, setUserId] = useState(null);
   const [showPromptGenerator, setShowPromptGenerator] = useState(false);
   const [currentPrompt, setCurrentPrompt] = useState('');
   const [isPromptGeneratorVisible, setIsPromptGeneratorVisible] = useState(false);
@@ -501,39 +502,78 @@ const DrawingScreen = () => {
       Alert.alert('Error', 'Failed to save image');
     }
   };
+  useEffect(() => {
+    const getUserId = async () => {
+      try {
+        const storedUserId = await AsyncStorage.getItem('userID');
+        console.log('Stored User ID:', storedUserId); // Log the retrieved User ID
+        if (storedUserId) {
+          setUserId(storedUserId);
+        }
+      } catch (error) {
+        console.error('Failed to load user ID', error);
+      }
+    };
 
+    getUserId();
+  }, []);
 
-  // Handle the Add to Gallery button click
   const handleAddToGalleryClick = async () => {
+    if (!userID) {
+      Alert.alert('Error', 'User ID is not set. Please log in again.');
+      return;
+    }
+  
     try {
-      // Capture SVG as a PNG (base64)
-      const pngData = await captureRef(svgRef, {
+      const pngData = `data:image/png;base64,${await captureRef(svgRef, {
         format: 'png',
         quality: 0.8,
         result: 'base64',
-      });
-
-      // Save PNG data to AsyncStorage
-      await saveImageToGalleryStorage(pngData);
-
-      // Navigate to GalleryScreen to view saved image
-      navigation.navigate('Gallery');
+      })}`;
+  
+      console.log("Image Data:", pngData); // Log the image data
+  
+      // Step 1: Fetch the current coins for the user
+      const { data: userProfile, error: fetchError } = await supabase
+        .from('profiles')
+        .select('coins')
+        .eq('id', userID)
+        .single();
+  
+      if (fetchError) {
+        console.error('Error fetching user profile:', fetchError);
+        Alert.alert('Error', 'Failed to fetch user profile');
+        return;
+      }
+  
+      const currentCoins = userProfile.coins || 0;
+  
+      // Step 2: Calculate new coins value
+      const newCoinsValue = currentCoins + 10;
+  
+      // Step 3: Update the image_data and increment coins by 10
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({ 
+          image_data: pngData,
+          coins: newCoinsValue // Use the calculated new value
+        })
+        .eq('id', userID); // Specify the user by id
+  
+      if (error) {
+        console.error('Error saving image to Supabase:', error);
+        Alert.alert('Error', 'Failed to save image to Supabase');
+      } else {
+        console.log('Update successful:', data); // Log the successful data response
+        Alert.alert('Success', 'Drawing saved to gallery! You earned 10 coins!');
+      }
     } catch (error) {
       console.error('Failed to save image', error);
       Alert.alert('Error', 'Failed to save image');
     }
-    const storedHeaderText = await AsyncStorage.getItem('headerText');
-    const newHeaderText = (parseInt(storedHeaderText) + 10).toString();
-    await AsyncStorage.setItem('headerText', newHeaderText);
   };
-
-  const renderItem = ({ item }) => (
-    <Image
-      source={{ uri: item }} // Base64 image
-      style={styles.image}
-    />
-  );
-
+  
+  
   const renderPath = (path) => {
     return path.map((point, index) => `${index === 0 ? 'M' : 'L'}${point.x},${point.y}`).join(' ');
   };

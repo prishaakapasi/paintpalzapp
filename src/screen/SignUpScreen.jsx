@@ -27,55 +27,69 @@ const SignUpScreen = () => {
 
     initializeHeaderText();
   }, []);
-
   const handleSignUp = async () => {
     // Email validation
     if (!validateEmail(email)) {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
-
+  
     // Password validation
     if (password.length < 8) {
       Alert.alert('Password Error', 'Password must be at least 8 characters long.');
       return;
     }
-
+  
     // Check if password contains at least one special symbol
     const specialSymbolRegex = /[!@#$%^&*(),.?":{}|<>]/;
     if (!specialSymbolRegex.test(password)) {
       Alert.alert('Password Error', 'Password must contain at least one special symbol (e.g., !, @, #, $, etc.).');
       return;
     }
-
+  
     // Confirm password validation
     if (password !== confirmPassword) {
       Alert.alert('Password Mismatch', 'Passwords do not match. Please try again.');
       return;
     }
-
+  
     try {
       const { user, session, error } = await supabase.auth.signUp({
         email,
         password,
       });
-      console.log(user, session, error)
-
+  
       if (error) {
         console.error('Supabase Error:', error);
         Alert.alert('Error', `Error: ${error.message}`);
-        return; // Prevent further execution
+        return;
       } else {
         Alert.alert('Success', 'Check your email for a confirmation link.');
-        navigation.navigate('Login'); // Navigate to Login after successful sign-up
-        await AsyncStorage.setItem('isNewUser', 'true');
-        navigation.navigate('Login');
+  
+        // Insert the user's header text into the headers table
+        const { error: insertError } = await supabase
+          .from('headers')
+          .insert([{ user_id: user.id, text: '0' }]); // Initialize header text to '0'
+  
+        if (insertError) {
+          console.error('Insert Error:', insertError);
+          Alert.alert('Error', 'Failed to create header text. Please try again.');
+        } else {
+          console.log('Header text initialized to 0');
+          
+          // Store user ID globally using AsyncStorage
+          await AsyncStorage.setItem('userID', user.id);
+  
+          // Optionally navigate to Login after successful header text initialization
+          navigation.navigate('Login');
+        }
       }
     } catch (err) {
       console.error('Error during sign-up:', err);
       Alert.alert('Sign Up Error', 'An error occurred while signing up. Please try again.');
     }
   };
+  
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

@@ -37,7 +37,7 @@ const LoginScreen = () => {
 
     setLoading(true); // Start loading
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: email,
         password: password,
       });
@@ -45,6 +45,12 @@ const LoginScreen = () => {
       if (error) throw error;
 
       console.log('Sign In successful');
+
+      // Log the user ID
+      const userID = data.user.id; // Extract the user ID
+      console.log('User ID:', userID); // Log the user ID to console
+      await AsyncStorage.setItem('userID', userID); // Optionally, store user ID in AsyncStorage
+
       navigation.navigate('Avatar Screen');
     } catch (error) {
       Alert.alert('Error', error.message);
@@ -115,7 +121,6 @@ const LoginScreen = () => {
 };
 
 export default LoginScreen;
-
 
 const styles = StyleSheet.create({
   container: {
