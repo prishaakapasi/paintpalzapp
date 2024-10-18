@@ -1,14 +1,14 @@
 import { StyleSheet, View, Image, Dimensions, TouchableOpacity } from 'react-native';
 import React, { useState, useContext } from 'react';
-import { useNavigation} from '@react-navigation/native'; // Import useNavigation hook
-import Header from './Header'; // Import the Header component
+import { useNavigation} from '@react-navigation/native';
+import Header from './Header'; 
 import { AvatarContext } from '../screen/AvatarContext';
 
 const { width } = Dimensions.get('window');
-const isLargeScreen = width > 600; // Check if the screen is large (e.g., iPads)
+const isLargeScreen = width > 600;
 
 const HomeScreen = () => {
-  const navigation = useNavigation(); // Access the navigation object
+  const navigation = useNavigation(); 
   
   const { selectedAvatar } = useContext(AvatarContext);
   const handleGalleryPress = () => {
@@ -23,18 +23,18 @@ const HomeScreen = () => {
 
   const handleDrawingPress = () => {
     console.log("Drawing button pressed");
-    navigation.navigate('Drawing'); // Navigate to the DrawingScreen
+    navigation.navigate('Drawing'); 
   };
 
-  const [headerText, setHeaderText] = useState('0'); // State for the header text
+  const [headerText, setHeaderText] = useState('0'); 
 
   return (
     <View style={isLargeScreen ? stylesLargeScreen.container : stylesPhone.container}>
       <Header 
         text={headerText}
         onSettingsPress={() => navigation.navigate('Settings')} 
-        iconColor="#213D61" // Set icon color to white
-        textColor="#213D61" // Set text color to white
+        iconColor="#213D61" 
+        textColor="#213D61" 
       />
       
       <View style={isLargeScreen ? stylesLargeScreen.avatarscreen : stylesPhone.avatarscreen}>
@@ -136,24 +136,24 @@ const stylesLargeScreen = StyleSheet.create({
     paddingHorizontal: 30,
   },
   button: {
-    width: width * 0.45, // Same width as the other buttons
-    height: width * 0.45, // Same height as the other buttons
+    width: width * 0.45, 
+    height: width * 0.45, 
     marginHorizontal: 8,
   },
   paintByNumbersButton: {
-    width: 375, // Same width as the other buttons
-    height: width * 0.46, // Slightly taller than the other buttons
+    width: 375, 
+    height: width * 0.46,
     marginHorizontal: 8,
   },
   buttonImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain', // Ensure the image is centered and not stretched
+    resizeMode: 'contain',
   },
   drawingContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    marginTop: 15, // Set to a negative value for larger screens
+    marginTop: 15, 
     paddingBottom: '2%',
   },
 });

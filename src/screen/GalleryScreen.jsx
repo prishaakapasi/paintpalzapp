@@ -3,8 +3,8 @@ import { StyleSheet, View, FlatList, Image, Alert, Text, Dimensions, TouchableOp
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Header from './Header';
 import { useNavigation } from '@react-navigation/native';
+import { supabase } from '../../lib/supabase';  // Ensure this is your Supabase config
 
-// Example URIs for excluded items
 const GalleryButton = () => (
   <View style={styles.galleryButtonContainer}>
     <TouchableOpacity style={styles.button}>
@@ -18,28 +18,69 @@ const GalleryScreen = () => {
   const [gallery, setGallery] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [userId, setUserId] = useState(null);  // State for storing the user ID
   const screenHeight = Dimensions.get('window').height;
 
   useEffect(() => {
-    const fetchGalleryImages = async () => {
+    const getUserId = async () => {
       try {
-        const existingGallery = await AsyncStorage.getItem('gallery');
-        if (existingGallery) {
-          setGallery(JSON.parse(existingGallery));
+        const storedUserId = await AsyncStorage.getItem('userID');
+        if (storedUserId) {
+          setUserId(storedUserId);
         }
-        // Initialize headerText if not present
-        const storedText = await AsyncStorage.getItem('headerText');
-        if (!storedText) {
-          await AsyncStorage.setItem('headerText', '0');
+      } catch (error) {
+        console.error('Failed to load user ID', error);
+      }
+    };
+
+    getUserId();
+  }, []);
+
+  useEffect(() => {
+    const fetchGalleryImages = async () => {
+      if (!userId) return;  // Wait until userId is available
+  
+      try {
+        // Fetch images from Supabase based on the user ID
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('image_data, paint_data')
+          .eq('id', userId);  // Match with user ID
+  
+        if (error) {
+          console.error('Error fetching gallery from Supabase:', error);
+          Alert.alert('Error', 'Failed to load gallery images');
+          return;
+        }
+  
+        if (data && data.length > 0) {
+          console.log('Supabase data:', data); // Log the entire response
+  
+          const images = [];
+  
+          // Log the values of image_data and paint_data to check
+          console.log('image_data:', data[0].image_data);
+          console.log('paint_data:', data[0].paint_data);
+  
+          // Combine both image_data and paint_data if available
+          if (data[0].image_data) {
+            images.push(data[0].image_data);  // Add image_data to gallery
+          }
+          if (data[0].paint_data) {
+            images.push(data[0].paint_data);  // Add paint_data to gallery
+          }
+  
+          setGallery(images);  // Update state with fetched images
         }
       } catch (error) {
         console.error('Error fetching gallery', error);
         Alert.alert('Error', 'Failed to load gallery images');
       }
     };
-
+  
     fetchGalleryImages();
-  }, []);
+  }, [userId]);
+  
 
   const handleHomePress = () => {
     navigation.navigate('Home'); 
@@ -47,33 +88,75 @@ const GalleryScreen = () => {
 
   const removeImage = async () => {
     try {
-      // Update gallery
-      const updatedGallery = gallery.filter((image) => image !== selectedImage);
-      setGallery(updatedGallery);
-      setModalVisible(false);
-  
-      // Update gallery in AsyncStorage
-      await AsyncStorage.setItem('gallery', JSON.stringify(updatedGallery));
-  
-      // Fetch current headerText
-      const storedText = await AsyncStorage.getItem('headerText');
-      const currentHeaderText = storedText ? parseInt(storedText, 10) : 0;
-  
-      // Calculate new headerText based on gallery length
-      const newHeaderText = updatedGallery.length > 0 ? (currentHeaderText - 10).toString() : '0';
-      
-      // Save new headerText to AsyncStorage
-      await AsyncStorage.setItem('headerText', newHeaderText);
-      
-      console.log(`Updated headerText: ${newHeaderText}`); // For debugging
-    } catch (error) {
-      console.error('Error updating gallery or header text', error);
-      Alert.alert('Error', 'Failed to update gallery or header text');
-    }
-  };
+        // Update gallery by removing the selected image from the local state
+        const updatedGallery = gallery.filter((image) => image !== selectedImage);
+        setGallery(updatedGallery);
+        setModalVisible(false);
 
-  const openModal = (imageUri) => {
-    setSelectedImage(imageUri);
+        // First, fetch the current coins value and both image data columns
+        const { data: profileData, error: fetchError } = await supabase
+            .from('profiles')
+            .select('coins, image_data, paint_data')  // Fetch current coins and both image data columns
+            .eq('id', userId)
+            .single();  // Get a single record
+
+        // Check for fetch errors
+        if (fetchError) {
+            console.error('Error fetching profile:', fetchError);
+            return; // Exit if there's an error
+        } 
+
+        console.log(`Current coins: ${profileData.coins}`);
+
+        // Determine which column contains the selected image
+        let columnToUpdate = null;
+        if (profileData.image_data && profileData.image_data === selectedImage) {
+            columnToUpdate = 'image_data';
+        } else if (profileData.paint_data && profileData.paint_data === selectedImage) {
+            columnToUpdate = 'paint_data';
+        } else {
+            console.error('Selected image not found in either column.');
+            Alert.alert('Error', 'Selected image not found in profile.');
+            return; // Exit if the image is not found
+        }
+
+        // Subtract 10 from the current coins value
+        const newCoinsValue = profileData.coins - 10;
+
+        // Prepare the update object
+        const updateData = {
+            coins: newCoinsValue,  // Update coins
+        };
+
+        // Clear the image data for the specified column
+        updateData[columnToUpdate] = "";  // Set to empty string instead of null
+
+        // Update the profile with the new data
+        const { data, error } = await supabase
+            .from('profiles')
+            .update(updateData)
+            .eq('id', userId);  // Match by user ID
+
+        // Check for update errors
+        if (error) {
+            console.error('Error updating profile:', error);
+            Alert.alert('Error', 'Failed to delete the image');
+            return; // Exit if there's an error
+        }
+
+        console.log('Image deleted from Supabase successfully:', data);
+
+        // Update the local AsyncStorage if applicable
+        await AsyncStorage.setItem('gallery', JSON.stringify(updatedGallery));
+
+    } catch (error) {
+        console.error('Error updating gallery:', error);
+        Alert.alert('Error', 'Failed to update gallery');
+    }
+};
+
+  const openModal = (image) => {
+    setSelectedImage(image);
     setModalVisible(true);
   };
   
@@ -86,12 +169,12 @@ const GalleryScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.homeButton}>
-        <TouchableOpacity style={styles.homeButton} onPress={handleHomePress}>
+        <TouchableOpacity onPress={handleHomePress}>
           <Image source={require("../screen/assets/home.png")} style={styles.home} />
         </TouchableOpacity>
       </View>
       <Header 
-        onSettingsPress={() => navigation.navigate('Settings')} // Navigate to Settings on press
+        onSettingsPress={() => navigation.navigate('Settings')}
         iconColor="#FFFFFF"
         textColor="#FFFFFF"
       />
