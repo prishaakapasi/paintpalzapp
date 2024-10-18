@@ -1,101 +1,113 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { AvatarContext } from './AvatarContext';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from '../../lib/supabase';
 
 const AvatarScreen = () => {
   const { selectedGender, setSelectedGender, selectedAvatar, setSelectedAvatar } = useContext(AvatarContext);
-  const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+  const { width: screenWidth } = Dimensions.get('window');
   const navigation = useNavigation();
+  const [userID, setUserId] = useState(null);
 
-  // Local state for selected condition, separate from global avatar state
-  const [localSelectedCondition, setLocalSelectedCondition] = useState(null);
+  // Static mappings for boy avatars
+  const boyAvatars = [
+    require('../screen/avatars/boyavatars-01.png'),
+    require('../screen/avatars/boyavatars-02.png'),
+    require('../screen/avatars/boyavatars-03.png'),
+    require('../screen/avatars/boyavatars-04.png'),
+    require('../screen/avatars/boyavatars-05.png'),
+    require('../screen/avatars/boyavatars-06.png'),
+    require('../screen/avatars/boyavatars-07.png'),
+  ];
 
-  const handleSelect = () => {
-    // Ensure both an avatar and condition are selected before navigating
+  // Static mappings for girl avatars
+  const girlAvatars = [
+    require('../screen/avatars/avatargirls-01.png'),
+    require('../screen/avatars/avatargirls-02.png'),
+    require('../screen/avatars/avatargirls-03.png'),
+    require('../screen/avatars/avatargirls-04.png'),
+    require('../screen/avatars/avatargirls-05.png'),
+    require('../screen/avatars/avatargirls-06.png'),
+    require('../screen/avatars/avatargirls-07.png'),
+  ];
+
+  useEffect(() => {
+    const getUserId = async () => {
+      try {
+        const storedUserId = await AsyncStorage.getItem('userID');
+        if (storedUserId) {
+          setUserId(storedUserId);
+        }
+      } catch (error) {
+        console.error('Failed to load user ID', error);
+      }
+    };
+
+    getUserId();
+
+    return () => {
+      setUserId(null);
+    };
+  }, []);
+
+  const handleSelect = async () => {
     if (selectedAvatar) {
+      // Update avatar URL in Supabase
+      await handleAvatarSelect(selectedAvatar);
       navigation.navigate('Avatar Customization Screen');
     } else {
       alert('Please select an avatar first!');
     }
   };
 
-  // Static mappings for boy avatars
-  const boyAvatars = [
-    '../screen/avatars/boyavatars-01.png',
-    '../screen/avatars/boyavatars-02.png',
-    '../screen/avatars/boyavatars-03.png',
-    '../screen/avatars/boyavatars-04.png',
-    '../screen/avatars/boyavatars-05.png',
-    '../screen/avatars/boyavatars-06.png',
-    '../screen/avatars/boyavatars-07.png',
-  ];
+  const handleAvatarSelect = async (avatar) => {
+    setSelectedAvatar(avatar); // Set the selected avatar directly
+    const avatarSource = Image.resolveAssetSource(avatar).uri; // Get the URI of the selected avatar
 
-  // Static mappings for girl avatars
-  const girlAvatars = [
-    '../screen/avatars/avatargirls-01.png',
-    '../screen/avatars/avatargirls-02.png',
-    '../screen/avatars/avatargirls-03.png',
-    '../screen/avatars/avatargirls-04.png',
-    '../screen/avatars/avatargirls-05.png',
-    '../screen/avatars/avatargirls-06.png',
-    '../screen/avatars/avatargirls-07.png',
-  ];
+    // Update the avatar_url in the user's profile in Supabase
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ avatar_url: avatarSource }) // Update the avatar_url field with the correct URI
+      .eq('id', userID); // Match with the user ID
 
-  // Custom texts for each avatar
-  const avatarTexts = [
-    "Respiratory", 
-    "Infections",
-    "Oncological", 
-    "Trauma/Injuries",
-    "Surgical",
-    "Hematological", 
-    "Other", 
-  ];
-
-  const handleGenderSelect = (gender) => {
-    setSelectedGender(gender);
-    setSelectedAvatar(null);  // Reset the global avatar selection when gender changes
-    setLocalSelectedCondition(null); // Reset the local condition selection when gender changes
-  };
-
-  // Handle avatar selection, update both global avatar state and local condition
-  const handleAvatarSelect = (avatar, index) => {
-    setSelectedAvatar(avatar);  // Update the global avatar state
-    setLocalSelectedCondition(avatarTexts[index]); // Update local condition
+    if (error) {
+      console.error('Error updating avatar URL', error);
+    } else {
+      console.log('Avatar URL updated successfully', data);
+    }
   };
 
   const renderAvatars = (avatars) => {
     return avatars.map((avatar, index) => (
-      <TouchableOpacity key={index} onPress={() => handleAvatarSelect(avatar, index)}>
+      <TouchableOpacity key={index} onPress={() => handleAvatarSelect(avatar)}>
         <Image
-          source={avatar}
+          source={avatar} // Use the avatar directly as the source
           style={[
             styles.image,
             { width: screenWidth / 4, height: screenWidth / 4 },
             selectedAvatar === avatar ? styles.selectedAvatar : null,
           ]}
         />
-        <Text style={styles.avatarText}>{avatarTexts[index]}</Text>
       </TouchableOpacity>
     ));
   };
-
+  
   return (
     <View style={styles.container}>
-      <View style={styles.textContainer}> 
+      <View style={styles.textContainer}>
         <Text style={styles.text}> CREATE AVATAR </Text>
         <Text style={styles.text2}> Indicate Your Condition to Connect with Others in Similar Situations </Text>
       </View>
-      
-      {/* Gender selection buttons */}
+
       <View style={styles.genderSelectionContainer}>
         <TouchableOpacity
           style={[
             styles.genderButton,
             selectedGender === 'boy' ? styles.selectedButton : null,
           ]}
-          onPress={() => handleGenderSelect('boy')}
+          onPress={() => setSelectedGender('boy')}
         >
           <Text style={selectedGender === 'boy' ? styles.selectedGenderText : styles.genderText}>Boy</Text>
         </TouchableOpacity>
@@ -104,13 +116,12 @@ const AvatarScreen = () => {
             styles.genderButton,
             selectedGender === 'girl' ? styles.selectedButton : null,
           ]}
-          onPress={() => handleGenderSelect('girl')}
+          onPress={() => setSelectedGender('girl')}
         >
           <Text style={selectedGender === 'girl' ? styles.selectedGenderText : styles.genderText}>Girl</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Conditionally render boy or girl images based on selection */}
       {selectedGender === 'boy' ? (
         <View style={styles.imageContainer}>
           {renderAvatars(boyAvatars)}
@@ -123,11 +134,6 @@ const AvatarScreen = () => {
         <Text style={styles.placeholderText}>Please select a gender to see images.</Text>
       )}
 
-      {localSelectedCondition && (
-        <Text style={styles.selectedText}>
-          Selected Condition: {localSelectedCondition}
-        </Text>
-      )}
       <TouchableOpacity style={styles.selectButton} onPress={handleSelect}>
         <Text style={styles.selectButtonText}>Select</Text>
       </TouchableOpacity>
@@ -207,36 +213,21 @@ const styles = StyleSheet.create({
   selectedAvatar: {
     borderColor: '#213D61',
   },
-  avatarText: {
-    textAlign: 'center',
-    fontSize: 14,
-    color: '#333',
-    marginTop: 5,
-  },
   placeholderText: {
-    fontSize: 16,
-    color: '#333',
-    marginTop: 20,
     textAlign: 'center',
-  },
-  selectedText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    color: '#aaa',
     marginTop: 20,
-    color: '#213D61',
   },
   selectButton: {
     backgroundColor: '#213D61',
     paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
+    paddingHorizontal: 30,
+    borderRadius: 10,
     marginTop: 20,
-    width: '100%',
   },
   selectButtonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
-    textAlign: 'center',
   },
 });
