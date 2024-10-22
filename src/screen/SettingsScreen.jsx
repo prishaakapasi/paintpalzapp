@@ -124,6 +124,11 @@ const Account = ({ session, navigation }) => {
     setLoading(false);
   };
 
+  const changeCondition = async () => {
+    navigation.navigate('Avatar Screen');
+  };
+
+
   return (
     <View style={styles.container}>
       <View style={styles.homeButton}>
@@ -178,9 +183,14 @@ const Account = ({ session, navigation }) => {
         <Text style={styles.buttonText}>Change Password</Text>
       </TouchableOpacity>
 
+      <TouchableOpacity style={styles.button} onPress={changeCondition}>
+        <Text style={styles.buttonText}>Change Condition</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.button} onPress={handleLogout}>
         <Text style={styles.buttonText}>Logout</Text>
       </TouchableOpacity>
+      
     </View>
   );
 };
@@ -193,53 +203,57 @@ const styles = StyleSheet.create({
     backgroundColor: '#213D61',
   },
   input: {
-    height: 50, // Increased height for better touch targets
+    height: 50,
     borderColor: '#FFFFFF',
     borderWidth: 1,
-    marginBottom: 20, // Adjusted margin for better spacing
+    marginBottom: 20,
     padding: 10,
     color: '#FFFFFF',
-    fontSize: 18, // Increased font size for readability
+    fontSize: 18,
   },
   button: {
     backgroundColor: '#FFFFFF',
-    padding: 15, // Increased padding for larger buttons
+    padding: 15,
     alignItems: 'center',
-    marginBottom: 20, // Spacing between buttons
-    borderRadius: 5, // Rounded corners for buttons
+    marginBottom: 20,
+    borderRadius: 5,
   },
   buttonText: {
     color: '#213D61',
-    fontWeight: 'bold', // Bold text for better visibility
-    fontSize: 18, // Increased font size for buttons
+    fontWeight: 'bold',
+    fontSize: 18,
   },
   errorText: {
     color: 'red',
-    marginBottom: 10, // Margin for error messages
-    fontSize: 16, // Increased font size for better visibility
+    marginBottom: 10,
+    fontSize: 16,
   },
   successText: {
     color: 'green',
-    marginBottom: 10, // Margin for success messages
-    fontSize: 16, // Increased font size for better visibility
+    marginBottom: 10,
+    fontSize: 16,
   },
   homeButton: {
     position: 'absolute',
     top: '6%', 
-    right: '5%', // Adjust as necessary
+    right: '5%',
     zIndex: 10,
   },
   currentUsernameText: {
     color: 'white',
-    fontSize: 18, // Increased font size for better visibility
-    marginBottom: 20, // Spacing below the current username
+    fontSize: 18,
+    marginBottom: 20,
   },
   home: {
     width: 40,
     height: 40,
     resizeMode: 'contain',
   },
-  
+  conditionText: {
+    color: 'white',
+    fontSize: 18,
+    marginTop: 20,
+  },
 });
 
 export default Account;

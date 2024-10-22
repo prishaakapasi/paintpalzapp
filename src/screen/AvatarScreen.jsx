@@ -77,7 +77,7 @@ const AvatarScreen = () => {
   const handleSelect = async () => {
     if (selectedAvatar) {
       await handleAvatarSelect(selectedAvatar);
-      navigation.navigate('Login');
+      navigation.navigate('Home');
     } else {
       alert('Please select an avatar first!');
     }
