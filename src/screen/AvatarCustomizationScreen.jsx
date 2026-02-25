@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import Header from './Header';
 
 const { width: deviceWidth } = Dimensions.get('window');
-const isTablet = deviceWidth >= 768; // You can adjust this value based on your needs
+const isTablet = deviceWidth >= 768; 
 
 const avatarImageSize = isTablet ? 200 : 125;
 
@@ -1519,8 +1519,8 @@ const avatarImages = {
             <Header 
                 text={headerText}
                 onSettingsPress={() => navigation.navigate('Settings')} 
-                iconColor="#FFFFFF" // Set icon color to white
-                textColor="#FFFFFF" // Set text color to white
+                iconColor="#FFFFFF"
+                textColor="#FFFFFF"
             />
              <View style={[styles.homeButton, { marginTop: marginTopHomeButton }]}>
                 <TouchableOpacity onPress={handleHomePress}>
@@ -1610,7 +1610,7 @@ const styles = StyleSheet.create({
         color: 'white',
     },
     modalImage: {
-        // Size is adjusted dynamically based on avatarImageSize
+       
     },
     modalCaption: {
         fontSize: 16,
