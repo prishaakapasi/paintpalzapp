@@ -40,8 +40,8 @@ const DrawingScreen = () => {
     try {
       // Capture the SVG content as an image
       const uri = await captureRef(svgRef, {
-        format: 'png', // Save as PNG
-        quality: 1,    // Set quality to maximum
+        format: 'png',
+        quality: 1,   
       });
 
       // Save the image to the camera roll
@@ -556,15 +556,15 @@ const DrawingScreen = () => {
         .from('profiles')
         .update({ 
           image_data: pngData,
-          coins: newCoinsValue // Use the calculated new value
+          coins: newCoinsValue,
         })
-        .eq('id', userID); // Specify the user by id
+        .eq('id', userID); 
   
       if (error) {
         console.error('Error saving image to Supabase:', error);
         Alert.alert('Error', 'Failed to save image to Supabase');
       } else {
-        console.log('Update successful:', data); // Log the successful data response
+        console.log('Update successful:', data);
         Alert.alert('Success', 'Drawing saved to gallery! You earned 10 coins!');
       }
     } catch (error) {
@@ -603,8 +603,8 @@ const DrawingScreen = () => {
       <Header 
         text={headerText}
         onSettingsPress={() => navigation.navigate('Settings')} 
-        iconColor="#FFFFFF" // Set icon color to white
-        textColor="#FFFFFF" // Set text color to white
+        iconColor="#FFFFFF" 
+        textColor="#FFFFFF"
       />
       <View style={styles.buttonRow}>
         <TouchableOpacity
@@ -657,13 +657,11 @@ const DrawingScreen = () => {
    onTouchEnd={onTouchEnd}
   >
     <Defs>
-      {/* Define a clipping path */}
       <ClipPath id="clip">
         <Rect x="0" y="0" width={width} height={height} />
       </ClipPath>
     </Defs>
 
-    {/* Render existing paths */}
     {paths.map((item, index) => (
       <Path
         key={`path-${index}`}
@@ -677,7 +675,6 @@ const DrawingScreen = () => {
       />
     ))}
 
-    {/* Render dots */}
     {dots.map((dot, index) => (
       <Circle
         key={`dot-${index}`}
@@ -688,7 +685,6 @@ const DrawingScreen = () => {
       />
     ))}
 
-    {/* Render current path in progress */}
     <Path
       d={renderPath(currentPath)}
       stroke={selectedColor}
@@ -769,8 +765,8 @@ const styles = StyleSheet.create({
   homeButton: {
     position: 'absolute',
     top: '3%', 
-    marginTop:'5%', // Adjust as necessary
-    right: '5%', // Adjust as necessary
+    marginTop:'5%', 
+    right: '5%', 
     zIndex: 10,
   },
   home: {
@@ -780,8 +776,8 @@ const styles = StyleSheet.create({
     flex: 'right',
   },
   line: {
-    height: 2, // Adjust height of the line
-    backgroundColor: 'white', // Line color
+    height: 2, 
+    backgroundColor: 'white',
     marginBottom: 0,
   },
   textContainer: {
@@ -918,9 +914,9 @@ const styles = StyleSheet.create({
     left: 0,
     width: '100%',
     height: height * 0.1,
-    justifyContent: 'center', // Adjust as needed
-    alignItems: 'center', // Adjust as needed // Optional: adds a semi-transparent background to distinguish prompt
-    zIndex: 0, // Ensures it sits on top
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    zIndex: 0, 
   },
 
 });
