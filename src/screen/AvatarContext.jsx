@@ -1,6 +1,5 @@
 import React, { createContext, useState, useMemo } from 'react';
 
-// Create a context for global state
 export const AvatarContext = createContext();
 
 export const AvatarStateProvider = ({ children }) => {
