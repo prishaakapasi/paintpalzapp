@@ -8,6 +8,8 @@ A therapeutic creative app designed to support pediatric hospital patients throu
 
 [Portfolio case study →](https://www.prishaakapasi.com/engineering)
 
+![PaintPalz screenshot](paintpalz-CNmqxPCm.png)
+
 <br>
 
 ## overview
