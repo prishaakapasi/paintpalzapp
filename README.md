@@ -1,4 +1,4 @@
-# PaintPalz 🎨
+# PaintPalz 
 
 A therapeutic creative app designed to support pediatric hospital patients through art and connection.
 
@@ -18,11 +18,11 @@ PaintPalz is a mobile app designed as a therapeutic outlet for pediatric hospita
 
 ## features
 
-- 🧸 Avatar creation system with 100+ inclusive, customizable avatars tied to user identity and experience
-- 🎨 Paint-by-numbers with structured, therapeutic activities, prompts, and color randomization
-- ✏️ Free drawing canvas with adjustable brushes, colors, and a 300+ prompt generator
-- 🖼️ Personal gallery to save and reflect on artwork, with the option to share to a community gallery
-- 🏆 Gamified reward system where users earn coins to customize avatars, encouraging continued engagement
+-  Avatar creation system with 100+ inclusive, customizable avatars tied to user identity and experience
+-  Paint-by-numbers with structured, therapeutic activities, prompts, and color randomization
+-  Free drawing canvas with adjustable brushes, colors, and a 300+ prompt generator
+-  Personal gallery to save and reflect on artwork, with the option to share to a community gallery
+-  Gamified reward system where users earn coins to customize avatars, encouraging continued engagement
 
 <br>
 
