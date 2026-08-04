@@ -10,8 +10,6 @@ A therapeutic creative app designed to support pediatric hospital patients throu
 
 <br>
 
-![PaintPalz screenshot](screenshot.png)
-
 ## overview
 
 PaintPalz is a mobile app designed as a therapeutic outlet for pediatric hospital patients. Inspired by observing how technology can transform hospital environments, I built PaintPalz to help young patients feel less isolated and more emotionally supported during their stay. The app fosters creativity, self-expression, and connection through interactive art-based experiences and a shared community space.
